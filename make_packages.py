@@ -33,6 +33,8 @@ else:
     MAJOR_VERSION = TAG.split(".")[1]
     BRANCH = "stable-4." + MAJOR_VERSION
 
+# TODO: do not download this again, if the tar ball already exists, but
+# double-check that we're not using the wrong tar ball by accident.
 # Download and rename the package tar balls:
 # packages-master.tar.gz -> packages-4.11.0.tar.gz
 # packages-required-master.tar.gz -> packages-required-4.11.0.tar.gz
