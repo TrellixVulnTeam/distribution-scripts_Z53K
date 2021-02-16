@@ -11,4 +11,4 @@ For starters, we work on separate steps of the plan in separate files.
 
 Non-goals: turning this into a "proper" Python package. 
 
-
+`make_packages.py` needs [GitHub CLI](https://cli.github.com/)
