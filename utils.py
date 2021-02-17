@@ -35,10 +35,14 @@ def download(url, dst):
     subprocess.run(["curl", "-L", "-C", "-", "-z", dst, "-o", dst, url],
                    check=True)
 
+# Returns a boolean
 def check_whether_git_tag_exists(tag):
     res = subprocess.run(["git", "tag", "-l"],
                          capture_output=True,
                          text=True,
                          check=True)
-    # index raises a ValueError if tag is not found
-    res.stdout.index(tag)
+    tags = res.stdout.split('\n')
+    for s in tags:
+        if tag == s:
+            return True
+    return False
