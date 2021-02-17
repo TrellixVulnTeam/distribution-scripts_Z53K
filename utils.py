@@ -6,7 +6,10 @@ import sys
 from getpass import getpass
 import github
 
-CURRENT_REPO = "fingolfin/distribution-scripts"
+CURRENT_REPO_NAME = "fingolfin/distribution-scripts"
+# Initialized by create_github_instance
+GITHUB_INSTANCE = None
+CURRENT_REPO = None
 
 # print notices in green
 def notice(msg):
@@ -82,15 +85,18 @@ def check_whether_git_tag_exists(tag):
     return False
 
 # Returns a boolean
-def check_whether_github_release_exists(github_instance, tag):
-    repo = github_instance.get_repo(CURRENT_REPO)
+def check_whether_github_release_exists(tag):
+    repo = github_instance.get_repo(CURRENT_REPO_NAME)
     releases = repo.get_releases()
     for release in releases:
         if release.tag_name == tag:
             return True
     return False
 
+# sets the global variables GITHUB_INSTANCE and CURRENT_REPO
 def create_github_instance(token=None):
+    global GITHUB_INSTANCE, CURRENT_REPO
+    #TODO: error if global variables already bound?
     if token == None and "GITHUB_TOKEN" in os.environ:
         token = os.environ["GITHUB_TOKEN"]
     if token == None:
@@ -101,12 +107,13 @@ def create_github_instance(token=None):
             try:
                 g.get_user().name
             except github.GithubException:
-                print("Error. Maybe password is incorrect?")
+                print("Can't access GitHub: maybe the password is incorrect?")
                 continue
     else:
         g = github.Github(token)
         try:
             g.get_user().name
-        except:
-            raise
-    return g
+        except github.GithubException:
+            error("Error: the access token may be incorrect")
+    GITHUB_INSTANCE = g
+    CURRENT_REPO = GITHUB_INSTANCE.get_repo(CURRENT_REPO_NAME)
