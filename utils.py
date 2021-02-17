@@ -24,16 +24,18 @@ def verify_command_available(cmd):
 
 # check for uncommitted changes
 def verify_git_clean():
-    subprocess.run(["git", "update-index", "--refresh"],
-                   check=True)
-    subprocess.run(["git", "diff-index", "--quiet", "HEAD", "--"],
-                   check=True)
+    res = subprocess.run(["git", "update-index", "--refresh"])
+    if res.returncode == 0:
+        res = subprocess.run(["git", "diff-index", "--quiet", "HEAD", "--"])
+    if res.returncode != 0:
+        error("uncommitted changes detected")
 
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`
 def download(url, dst):
-    subprocess.run(["curl", "-L", "-C", "-", "-z", dst, "-o", dst, url],
-                   check=True)
+    res = subprocess.run(["curl", "-L", "-C", "-", "-z", dst, "-o", dst, url])
+    if res.returncode != 0:
+        error('failed downloading ' + url)
 
 # Returns a boolean
 def check_whether_git_tag_exists(tag):
