@@ -118,7 +118,7 @@ verify_git_clean()
 # fetch tags, so we can properly detect
 subprocess.run(["git", "fetch", "--tags"], check=True)
 
-# ensure that everything is built, so that we can extract 
+# ensure that everything is built, so that we can extract
 
 #with tempfile.TemporaryDirectory() as tmpdir:
 tmpdir = "/tmp/foobar"
@@ -149,10 +149,8 @@ badfiles = [
 ".travis.yml",
 ]
 
-# exec(compile(source=open('../utils.py').read(), filename='../utils.py', mode='exec'))
-
 with working_directory(tmpdir + "/" + rawbasename):
-    # remove a bunch of files
+    notice("removing unwanted files")
     shutil.rmtree("benchmark")
     shutil.rmtree("dev")
     shutil.rmtree(".github")
@@ -162,14 +160,19 @@ with working_directory(tmpdir + "/" + rawbasename):
         except:
             pass
 
-    notice("building GAP")
+    notice("running autogen.sh")
     subprocess.run(["./autogen.sh"], check=True)
-    subprocess.run(["./configure"], check=True)
-    #subprocess.run(["make", "-j8"], check=True) # FIXME: currently broken on gap master, fix already submitted
-    subprocess.run(["make"], check=True)
-    
+
+    notice("running configure")
+    with open("../configure.log", "w") as fp:
+        subprocess.run(["./configure"], check=True, stdout=fp)
+
+    notice("building GAP")
+    with open("../make.log", "w") as fp:
+        #subprocess.run(["make", "-j8"], check=True, stdout=fp) # FIXME: currently broken on gap master, fix already submitted
+        subprocess.run(["make"], check=True, stdout=fp)
+
     # parse `cnf/GAP-VERSION-FILE` to set gapversion properly
-    # FIXME: make this more resilient, add error checkig
     gapversion = open("cnf/GAP-VERSION-FILE").readlines()[0].split('=')[1].strip()
 
     # extract some values from the build system
@@ -178,10 +181,12 @@ with working_directory(tmpdir + "/" + rawbasename):
     PKG_MINIMAL = get_makefile_var("PKG_MINIMAL")
     PKG_FULL = get_makefile_var("PKG_FULL")
 
-print(f"branchname = {branchname}")
-print(f"PKG_BOOTSTRAP_URL = {PKG_BOOTSTRAP_URL}")
-print(f"PKG_MINIMAL = {PKG_MINIMAL}")
-print(f"PKG_FULL = {PKG_FULL}")
+
+notice(f"GAP version {gapversion}")
+notice(f"branchname = {branchname}")
+notice(f"PKG_BOOTSTRAP_URL = {PKG_BOOTSTRAP_URL}")
+notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
+notice(f"PKG_FULL = {PKG_FULL}")
 
 # setup tarball names
 basename = f"gap-{gapversion}" # TODO/FIXME insert proper name
@@ -201,20 +206,22 @@ with working_directory(tmpdir):
 
 
 with working_directory(tmpdir + "/" + rawbasename):
-    # extract the packages
+    notice("extract the packages")
     # TODO: switch to all_packages_tarball
     with tarfile.open("../"+req_packages_tarball) as tar:
-        tar.extractall()
+        tar.extractall(path="pkg")
 
     notice("building the manuals")
-    # TODO: redirect stdout/stderr into a log file
-    subprocess.run(["make", "doc"], check=True)
+    with open("../gapdoc.log", "w") as fp:
+        subprocess.run(["make", "doc"], check=True, stdout=fp)
 
     # remove generated files we don't want for distribution
     subprocess.run(["make", "distclean"], check=True)
 
 
 with working_directory(tmpdir):
+    # now that we know the version, rename the
+    shutil.rmtree(basename)
     os.rename(rawbasename, basename)
 
     notice(f"creating {main_tarball}")
@@ -222,7 +229,7 @@ with working_directory(tmpdir):
         tar.add(basename)
 
     notice(f"creating {core_tarball}")
-    shutil.rmtree("pkg")
+    shutil.rmtree(basename + "/pkg")
     with tarfile.open(core_tarball, "w:gz") as tar:
         tar.add(basename)
 
