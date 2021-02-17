@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This script is intended to implement step 4 of
+# This script is intended to implement step 3 of
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.:
 #
 # 3. Upload current packages as "packages for 4.11.3"
@@ -18,6 +18,7 @@ IS_MAJOR_RELEASE = (TAG[-1] == "0")
 
 # TODO: this is a different step
 # TODO add notes. Also a CHANGES.md?
+# TODO: check that the tag TAG exists
 subprocess.run("gh release create " + TAG
                + " --prerelease"
                + " --title " + TAG
@@ -54,7 +55,9 @@ print("Downloading " + PACKAGES_REQUIRED_SRC + " and renaming it to "
 urllib.request.urlretrieve(URL_TO_PACKAGE_ARCHIVES + PACKAGES_REQUIRED_SRC,
                            PACKAGES_REQUIRED_DST)
 
+# TODO: what happens if this crashes during the upload?
 print("Uploading " + PACKAGES_DST + " and " + PACKAGES_REQUIRED_DST)
+# --clobber means overwrite files with the same name
 subprocess.run("gh release upload --clobber " + TAG
                + " " + PACKAGES_DST
                + " " + PACKAGES_REQUIRED_DST,
