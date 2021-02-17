@@ -91,15 +91,16 @@ def check_whether_github_release_exists(github_instance, tag):
     return False
 
 def create_github_instance(token=None):
-    while True:
-        if token == None:
+    if token == None:
+        while True:
             name = input("Username for 'https://github.com': ")
             password = getpass("Password for 'https://"+name+"@github.com': ")
             g = github.Github(name, password)
-        else:
-            g = github.Github(token)
-        try:
-            g.get_user().name
-        except:
-            continue
+            try:
+                g.get_user().name
+                return g
+            except:
+                pass
+    else:
+        g = github.Github(token)
         return g
