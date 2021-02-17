@@ -6,6 +6,8 @@
 # 3. Upload current packages as "packages for 4.11.3"
 
 import sys, subprocess
+# If we do import * from utils, then initialize_github can't overwrite the
+# global GITHUB_INSTANCE and CURRENT_REPO variables.
 import utils
 
 if len(sys.argv) != 2:
@@ -17,15 +19,21 @@ TAG = sys.argv[1]
 TAG_NUMBER = TAG[1:len(TAG)]
 IS_MAJOR_RELEASE = (TAG[-1] == "0")
 
-# TODO: this is a different step
+# TODO: where should we put this: initialize_github and create release on
+# github
+utils.initialize_github()
+
+if utils.check_whether_github_release_exists(TAG):
+    utils.error("Release " + TAG + " already exists!")
 # TODO add notes. Also a CHANGES.md?
-# TODO: check that the tag TAG exists
-# TODO: this throws an error if the release already exists
-subprocess.run(["gh", "release", "create", TAG,
-               "--prerelease",
-               "--title", TAG,
-               "--notes", "\"test notes\""],
-               check=True)
+# From https://stackoverflow.com/questions/6245570/how-to-get-the-current-branch-name-in-git#12142066
+CURRENT_BRANCH = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                                text=True,
+                                capture_output=True)
+CURRENT_BRANCH = CURRENT_BRANCH.stdout.strip()
+utils.CURRENT_REPO.create_git_release(TAG, TAG, "test message",
+                                      target_commitish=CURRENT_BRANCH,
+                                      prerelease=True)
 
 URL_TO_PACKAGE_ARCHIVES = \
     "https://github.com/gap-system/gap-distribution/releases/download/package-archives/"
