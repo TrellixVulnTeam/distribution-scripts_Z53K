@@ -12,8 +12,6 @@ if len(sys.argv) != 2:
     raise Exception("usage : make_packages.py" \
                     + "<tag>")
 
-utils.verify_command_available("gh")
-
 TAG = sys.argv[1]
 # TAG_NUMBER is TAG without the leading "v"
 TAG_NUMBER = TAG[1:len(TAG)]
@@ -62,8 +60,8 @@ utils.download(URL_TO_PACKAGE_ARCHIVES + PACKAGES_REQUIRED_SRC,
 # TODO: what happens if this crashes during the upload?
 print("Uploading " + PACKAGES_DST + " and " + PACKAGES_REQUIRED_DST)
 # --clobber means overwrite files with the same name
-subprocess.run("gh", "release", "upload", "--clobber",
-               TAG,
-               PACKAGES_DST,
-               PACKAGES_REQUIRED_DST,
-               check=True)
+#subprocess.run("gh", "release", "upload", "--clobber",
+#               TAG,
+#               PACKAGES_DST,
+#               PACKAGES_REQUIRED_DST,
+#               check=True)
