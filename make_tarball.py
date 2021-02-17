@@ -42,42 +42,56 @@
 #    (Sergio knows how)
 
 #from os import popen, path
-import sys
 #from sys import argv, exit, hexversion, stderr
 #from zipfile import ZipFile
 #import re
 #import optparse
 #import argparse
+import shutil
 import subprocess
+import sys
 
+# print notices in green
 def notice(msg):
     print("\033[32m" + msg + "\033[0m")
 
+# print warnings in yellow
 def warning(msg):
     print("\033[33m" + msg + "\033[0m")
 
+# print error in red and exit
 def error(msg):
     print("\033[31m" + msg + "\033[0m")
     sys.exit(1)
 
+def verify_command_available(cmd):
+    if shutil.which(cmd) == None:
+        error(f"the '{cmd}' command was not found, please install it")
+    # TODO: do the analog of this in ReleaseTools bash script:
+    # command -v curl >/dev/null 2>&1 ||
+    #     error "the 'curl' command was not found, please install it"
 
+# check for uncommitted changes
+def verify_git_clean():
+    res = subprocess.call(["git", "update-index", "--refresh"])
+    if res == 0:
+        res = subprocess.call(["git", "diff-index", "--quiet", "HEAD", "--"])
+    if res != 0:
+        error("uncommitted changes detected")
+
+# download file at the given URL to path `dst`
+# TODO: check at startup if `curl is present`
 def download(url, dst):
     res = subprocess.call(["curl", "-C", "-", "-o", dst, url])
     if res != 0:
-        print('failed downloading ' + url)
-        sys.exit(1)
+        error('failed downloading ' + url)
 
+# Insist on Python >= 3.6 for f-strings and other goodies
+if sys.version_info < (3,6):
+    error("Python 3.6 or newer is required")
 
-
-
-
-# Insist on Python 3
-if sys.version_info < (3,0):
-    error("Python 3.5 or newer is required")
-
-if len(sys.argv) < 2 || len(sys.argv) > 3:
-    print 'usage:', sys.argv[0], '<gitref> [packagetarball]'
-    exit(1)
+if len(sys.argv) < 2 or len(sys.argv) > 3:
+    error('usage: ' + sys.argv[0] + ' <gitref> [packagetarball]')
 
 gitref = sys.argv[1]
 if len(sys.argv) >= 3:
@@ -89,6 +103,13 @@ else:
     # otherwise, use `git branch --contains SHA1` to determine the relevant
     #  branch (either the highest numbered stable-X.Y, else master/main)
 
+
+verify_command_available("curl")
+verify_command_available("git")
+
+verify_git_clean()
+
+sys.exit(0)
 
 print("")
 
