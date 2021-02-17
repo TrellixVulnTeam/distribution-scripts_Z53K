@@ -64,7 +64,7 @@ def get_makefile_var(var):
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`
 def download(url, dst):
-    res = subprocess.run(["curl", "-L", "-C", "-", "-z", dst, "-o", dst, url])
+    res = subprocess.run(["curl", "-L", "-C", "-", "-o", dst, url])
     if res.returncode != 0:
         error('failed downloading ' + url)
 
