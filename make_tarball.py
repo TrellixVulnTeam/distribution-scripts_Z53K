@@ -215,13 +215,13 @@ with working_directory(tmpdir + "/" + rawbasename):
     with open("../gapdoc.log", "w") as fp:
         subprocess.run(["make", "doc"], check=True, stdout=fp)
 
-    # remove generated files we don't want for distribution
-    subprocess.run(["make", "distclean"], check=True)
+    notice("remove generated files we don't want for distribution")
+    subprocess.run(["make", "distclean"], check=True, capture_output=True)
 
 
 with working_directory(tmpdir):
     # now that we know the version, rename the
-    shutil.rmtree(basename)
+    shutil.rmtree(basename, ignore_errors=True)
     os.rename(rawbasename, basename)
 
     notice(f"creating {main_tarball}")
