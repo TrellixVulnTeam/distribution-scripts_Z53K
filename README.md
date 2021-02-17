@@ -10,9 +10,9 @@ For starters, we work on separate steps of the plan in separate files.
 
 Non-goals: turning this into a "proper" Python package. 
 
-Requirements:
+## Dependencies
 - Python >= 3.5
-- [GitHub CLI](https://cli.github.com/) command line tool
+- PyGithub: `pip install PyGithub`
 - `curl`
 - `git`
 
