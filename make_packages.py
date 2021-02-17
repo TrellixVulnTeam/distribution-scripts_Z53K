@@ -6,6 +6,7 @@
 # 3. Upload current packages as "packages for 4.11.3"
 
 import sys, urllib.request, subprocess
+import utils
 
 if len(sys.argv) != 2:
     raise Exception("usage : make_packages.py" \
@@ -45,15 +46,15 @@ print("Downloading " + PACKAGES_SRC + " and renaming it to "
       + PACKAGES_DST)
 # packages-stable-4.11.tar.gz -> packages-v4.11.1.tar.gz
 # packages-required-stable-4.11.tar.gz -> packages-required-v4.11.1.tar.gz
-urllib.request.urlretrieve(URL_TO_PACKAGE_ARCHIVES + PACKAGES_SRC,
-                           PACKAGES_DST)
+utils.download(URL_TO_PACKAGE_ARCHIVES + PACKAGES_SRC,
+               PACKAGES_DST)
 
 PACKAGES_REQUIRED_SRC = "packages-required-" + BRANCH + ".tar.gz"
 PACKAGES_REQUIRED_DST = "packages-required-" + TAG_NUMBER + ".tar.gz"
 print("Downloading " + PACKAGES_REQUIRED_SRC + " and renaming it to "
       + PACKAGES_REQUIRED_DST)
-urllib.request.urlretrieve(URL_TO_PACKAGE_ARCHIVES + PACKAGES_REQUIRED_SRC,
-                           PACKAGES_REQUIRED_DST)
+utils.download(URL_TO_PACKAGE_ARCHIVES + PACKAGES_REQUIRED_SRC,
+               PACKAGES_REQUIRED_DST)
 
 # TODO: what happens if this crashes during the upload?
 print("Uploading " + PACKAGES_DST + " and " + PACKAGES_REQUIRED_DST)

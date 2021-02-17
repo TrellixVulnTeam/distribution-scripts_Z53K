@@ -33,6 +33,6 @@ def verify_git_clean():
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`
 def download(url, dst):
-    res = subprocess.call(["curl", "-C", "-", "-o", dst, url])
+    res = subprocess.call(["curl", "-L", "-C", "-", "-o", dst, url])
     if res != 0:
         error('failed downloading ' + url)
