@@ -1,3 +1,5 @@
+import contextlib
+import os
 import shutil
 import subprocess
 import sys
@@ -21,6 +23,11 @@ def verify_command_available(cmd):
     # TODO: do the analog of this in ReleaseTools bash script:
     # command -v curl >/dev/null 2>&1 ||
     #     error "the 'curl' command was not found, please install it"
+
+def verify_git_repo():
+    res = subprocess.run(["git", "--git-dir=.git", "rev-parse"], stderr = subprocess.DEVNULL)
+    if res.returncode != 0:
+        error("current directory is not a git root directory")
 
 # check for uncommitted changes
 def verify_git_clean():
@@ -48,3 +55,15 @@ def check_whether_git_tag_exists(tag):
         if tag == s:
             return True
     return False
+
+# from https://code.activestate.com/recipes/576620-changedirectory-context-manager/
+@contextlib.contextmanager
+def working_directory(path):
+    """A context manager which changes the working directory to the given
+    path, and then changes it back to its previous value on exit.
+
+    """
+    prev_cwd = os.getcwd()
+    os.chdir(path)
+    yield
+    os.chdir(prev_cwd)
