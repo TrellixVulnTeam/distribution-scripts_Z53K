@@ -41,6 +41,26 @@ def verify_git_clean():
     if res.returncode != 0:
         error("uncommitted changes detected")
 
+# from https://code.activestate.com/recipes/576620-changedirectory-context-manager/
+@contextlib.contextmanager
+def working_directory(path):
+    """A context manager which changes the working directory to the given
+    path, and then changes it back to its previous value on exit.
+
+    """
+    prev_cwd = os.getcwd()
+    os.chdir(path)
+    yield
+    os.chdir(prev_cwd)
+
+# helper for extracting values of variables set in the GAP Makefiles.rules
+def get_makefile_var(var):
+    res = subprocess.run(["make", f"print-{var}"], check=True, capture_output=True)
+    kv = res.stdout.decode('ascii').strip().split('=')
+    assert len(kv) == 2
+    assert kv[0] == var
+    return kv[1]
+
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`
 def download(url, dst):
@@ -68,18 +88,6 @@ def check_whether_github_release_exists(github_instance, tag):
         if release.tag_name == tag:
             return True
     return False
-
-# from https://code.activestate.com/recipes/576620-changedirectory-context-manager/
-@contextlib.contextmanager
-def working_directory(path):
-    """A context manager which changes the working directory to the given
-    path, and then changes it back to its previous value on exit.
-
-    """
-    prev_cwd = os.getcwd()
-    os.chdir(path)
-    yield
-    os.chdir(prev_cwd)
 
 def create_github_instance(token=None):
     while True:

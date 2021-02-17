@@ -118,32 +118,27 @@ verify_git_clean()
 # fetch tags, so we can properly detect
 subprocess.run(["git", "fetch", "--tags"], check=True)
 
-# ensure that everyt
+# ensure that everything is built, so that we can extract 
 
-
-# make print-PKG_BRANCH
-gapversion = "4.X.Y" # TODO: extract this from
-
-
-basename = f"gap-{gapversion}" # TODO/FIXME insert proper name
 #with tempfile.TemporaryDirectory() as tmpdir:
 tmpdir = "/tmp/foobar"
 notice(f"tmpdir = {tmpdir}")
 
 notice("Exporting repository content via `git archive`")
-rawgap_tarfile = f"{tmpdir}/{basename}.tar"
+rawbasename = "gap-raw"
+rawgap_tarfile = f"{tmpdir}/{rawbasename}.tar"
 subprocess.run(["git", "archive",
-                f"--prefix={basename}/",
+                f"--prefix={rawbasename}/",
                 f"--output={rawgap_tarfile}",
                 "HEAD"], check=True)
 
 notice("Extracting exported content")
-
 with tarfile.open(rawgap_tarfile) as tar:
     tar.extractall(path=tmpdir)
-
 os.remove(rawgap_tarfile)
 
+
+notice("Processing exported content")
 
 badfiles = [
 ".appveyor.yml",
@@ -154,7 +149,9 @@ badfiles = [
 ".travis.yml",
 ]
 
-with working_directory(tmpdir + "/" + basename):
+# exec(compile(source=open('../utils.py').read(), filename='../utils.py', mode='exec'))
+
+with working_directory(tmpdir + "/" + rawbasename):
     # remove a bunch of files
     shutil.rmtree("benchmark")
     shutil.rmtree("dev")
@@ -165,66 +162,69 @@ with working_directory(tmpdir + "/" + basename):
         except:
             pass
 
-    # build GAP
+    notice("building GAP")
     subprocess.run(["./autogen.sh"], check=True)
     subprocess.run(["./configure"], check=True)
     #subprocess.run(["make", "-j8"], check=True) # FIXME: currently broken on gap master, fix already submitted
     subprocess.run(["make"], check=True)
     
-    # get required packages tarball
-    subprocess.run(["make", "bootstrap-pkg-minimal"], check=True) # FIXME
-    rmtree
-    #subprocess.run(["make", "bootstrap-pkg-full"], check=True)
+    # parse `cnf/GAP-VERSION-FILE` to set gapversion properly
+    # FIXME: make this more resilient, add error checkig
+    gapversion = open("cnf/GAP-VERSION-FILE").readlines()[0].split('=')[1].strip()
+
+    # extract some values from the build system
+    branchname = get_makefile_var("PKG_BRANCH")
+    PKG_BOOTSTRAP_URL = get_makefile_var("PKG_BOOTSTRAP_URL")
+    PKG_MINIMAL = get_makefile_var("PKG_MINIMAL")
+    PKG_FULL = get_makefile_var("PKG_FULL")
+
+print(f"branchname = {branchname}")
+print(f"PKG_BOOTSTRAP_URL = {PKG_BOOTSTRAP_URL}")
+print(f"PKG_MINIMAL = {PKG_MINIMAL}")
+print(f"PKG_FULL = {PKG_FULL}")
+
+# setup tarball names
+basename = f"gap-{gapversion}" # TODO/FIXME insert proper name
+main_tarball = f"{basename}.tar.gz"
+core_tarball = f"{basename}-core.tar.gz" # same as above but without pkg dir
+all_packages_tarball = f"packages-v{gapversion}.tar.gz" # only the pkg dir
+req_packages_tarball = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
+
+# download package tarballs outside of the directory we just created
+# TODO: also use existing tarballs if present, so that during retry on
+#       does not have to download again?
+# TODO: add checksum validation?
+notice("downloading package tarballs")
+with working_directory(tmpdir):
+    download(PKG_BOOTSTRAP_URL+PKG_MINIMAL, req_packages_tarball)
+    #download(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
+
+
+with working_directory(tmpdir + "/" + rawbasename):
+    # extract the packages
+    # TODO: switch to all_packages_tarball
+    with tarfile.open("../"+req_packages_tarball) as tar:
+        tar.extractall()
+
+    notice("building the manuals")
+    # TODO: redirect stdout/stderr into a log file
     subprocess.run(["make", "doc"], check=True)
 
     # remove generated files we don't want for distribution
     subprocess.run(["make", "distclean"], check=True)
 
 
-# Now create the tarball
-main_tarball = f"{basename}.tar.gz"
-core_tarball = f"{basename}-core.tar.gz" # same as above but without pkg dir
-all_packages_tarball = f"packages-v{gapversion}.tar.gz" # only the pkg dir
-req_packages_tarball = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
-
 with working_directory(tmpdir):
+    os.rename(rawbasename, basename)
+
+    notice(f"creating {main_tarball}")
     with tarfile.open(main_tarball, "w:gz") as tar:
         tar.add(basename)
 
-    with tarfile.open(all_packages_tarball, "w:gz") as tar:
-        tar.add(basename + "/pkg")
-
-    #TODO: get the required tarball out there?
-    #with tarfile.open(req_packages_tarball, "w:gz") as tar:
-    #    tar.add(basename + "/pkg")
-
-#     - fetches the versioned packages tarball
-
-print("TODO: download package distro tarballs")
-# TODO: also use existing tarballs if present, so that during retry on
-# does not have to download again?
-# TODO: add checksum validation?
-
-#     - extracts packages in the code from git
-
-print("TODO: extract package archive, either via Python package or by invoking `tar`")
-
-pkgarchive = "https://github.com/gap-system/gap-distribution/releases/download/package-archives/packages-stable-4.11.tar.gz"
-# TODO: for now use the above, in the future
-
-#     - run `tar`  to create `.tar.gz` (and perhaps also `.tar.xz`)
-
-print("TODO: create tarballs from all")
-
-
-# TODO: how to name the tarballs?
-#  - gap-4.11.1.tar.gz  for branch v4.11.1
-#  - what do use for a random sha1? if we simply work in a git clone, we could
-#    use the output of `git --version` (resp. parse `cnf/GAP-VERSION-FILE`)
-
-# TODO: also create a gap-core-4.X.Y.tar.gz tarball which omits the pkg dir
-#  (but unlike the current one, perhaps it perhaps should contain the manual)
-
+    notice(f"creating {core_tarball}")
+    shutil.rmtree("pkg")
+    with tarfile.open(core_tarball, "w:gz") as tar:
+        tar.add(basename)
 
 # The end
 notice("DONE")
