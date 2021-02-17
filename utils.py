@@ -96,7 +96,9 @@ def check_whether_github_release_exists(tag):
 # sets the global variables GITHUB_INSTANCE and CURRENT_REPO
 def initialize_github(token=None):
     global GITHUB_INSTANCE, CURRENT_REPO
-    #TODO: error if global variables already bound?
+    if GITHUB_INSTANCE != None or CURRENT_REPO != None:
+        error("Global variables GITHUB_INSTANCE and CURRENT_REPO "
+              + " are already initialized.")
     if token == None and "GITHUB_TOKEN" in os.environ:
         token = os.environ["GITHUB_TOKEN"]
     if token == None:
