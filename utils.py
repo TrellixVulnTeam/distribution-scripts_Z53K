@@ -4,6 +4,8 @@ import shutil
 import subprocess
 import sys
 
+CURRENT_REPO = "fingolfin/distribution-scripts"
+
 # print notices in green
 def notice(msg):
     print("\033[32m" + msg + "\033[0m")
@@ -53,6 +55,15 @@ def check_whether_git_tag_exists(tag):
     tags = res.stdout.split('\n')
     for s in tags:
         if tag == s:
+            return True
+    return False
+
+# Returns a boolean
+def check_whether_github_release_exists(github_instance, tag):
+    repo = github_instance.get_repo(CURRENT_REPO)
+    releases = repo.get_releases()
+    for release in releases:
+        if release.tag_name == tag:
             return True
     return False
 
