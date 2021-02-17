@@ -86,8 +86,9 @@ def check_whether_git_tag_exists(tag):
 
 # Returns a boolean
 def check_whether_github_release_exists(tag):
-    repo = github_instance.get_repo(CURRENT_REPO_NAME)
-    releases = repo.get_releases()
+    if CURRENT_REPO == None:
+        print("CURRENT_REPO is not initialized. Call initialize_github first")
+    releases = CURRENT_REPO.get_releases()
     for release in releases:
         if release.tag_name == tag:
             return True
