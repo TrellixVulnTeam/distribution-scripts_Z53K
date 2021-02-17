@@ -28,8 +28,6 @@ def verify_git_clean():
                    check=True)
     subprocess.run(["git", "diff-index", "--quiet", "HEAD", "--"],
                    check=True)
-    if res != 0:
-        error("uncommitted changes detected")
 
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`
