@@ -36,3 +36,11 @@ def download(url, dst):
     res = subprocess.call(["curl", "-L", "-C", "-", "-z", dst, "-o", dst, url])
     if res != 0:
         error('failed downloading ' + url)
+
+def check_whether_git_tag_exists(tag):
+    res = subprocess.run(["git", "tag", "-l"],
+                         capture_output=True,
+                         text=True,
+                         check=True)
+    # index raises a ValueError if tag is not found
+    res.stdout.index(tag)
