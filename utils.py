@@ -7,7 +7,7 @@ from getpass import getpass
 import github
 
 CURRENT_REPO_NAME = "fingolfin/distribution-scripts"
-# Initialized by create_github_instance
+# Initialized by initialize_github
 GITHUB_INSTANCE = None
 CURRENT_REPO = None
 
@@ -94,7 +94,7 @@ def check_whether_github_release_exists(tag):
     return False
 
 # sets the global variables GITHUB_INSTANCE and CURRENT_REPO
-def create_github_instance(token=None):
+def initialize_github(token=None):
     global GITHUB_INSTANCE, CURRENT_REPO
     #TODO: error if global variables already bound?
     if token == None and "GITHUB_TOKEN" in os.environ:
