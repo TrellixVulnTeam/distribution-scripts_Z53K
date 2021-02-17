@@ -16,3 +16,7 @@ Requirements:
 - `curl`
 - `git`
 
+## Goals
+Maybe use this in an action to create a "nightly build". For that we need to
+provide access tokens. See
+[this action documentation page](https://docs.github.com/en/actions/learn-github-actions/security-hardening-for-github-actions)
