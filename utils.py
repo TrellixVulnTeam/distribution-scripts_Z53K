@@ -3,6 +3,8 @@ import os
 import shutil
 import subprocess
 import sys
+from getpass import getpass
+import github
 
 CURRENT_REPO = "fingolfin/distribution-scripts"
 
@@ -78,3 +80,17 @@ def working_directory(path):
     os.chdir(path)
     yield
     os.chdir(prev_cwd)
+
+def create_github_instance(token=None):
+    while True:
+        if token == None:
+            name = input("Username for 'https://github.com': ")
+            password = getpass("Password for 'https://"+name+"@github.com': ")
+            g = github.Github(name, password)
+        else:
+            g = github.Github(token)
+        try:
+            g.get_user().name
+        except:
+            continue
+        return g
