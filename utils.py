@@ -70,6 +70,7 @@ def download(url, dst):
 
 # Returns a boolean
 def check_whether_git_tag_exists(tag):
+    subprocess.run(["git", "fetch", "--tags"])
     res = subprocess.run(["git", "tag", "-l"],
                          capture_output=True,
                          text=True,
