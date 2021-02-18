@@ -102,20 +102,22 @@ def initialize_github(token=None):
     if token == None and "GITHUB_TOKEN" in os.environ:
         token = os.environ["GITHUB_TOKEN"]
     if token == None:
-        while True:
-            name = input("Username for 'https://github.com': ")
-            password = getpass("Password for " + name + ": ")
-            g = github.Github(name, password)
-            try:
-                g.get_user().name
-                break
-            except github.GithubException:
-                print("Can't access GitHub: maybe the password is incorrect?")
-    else:
-        g = github.Github(token)
-        try:
-            g.get_user().name
-        except github.GithubException:
-            error("Error: the access token may be incorrect")
+        error("Error: no access token found or provided")
+    ## This code does not work. Authentication fails
+    #     while True:
+    #         name = input("Username for 'https://github.com': ")
+    #         password = getpass("Password for " + name + ": ")
+    #         g = github.Github(name, password)
+    #         try:
+    #             g.get_user().name
+    #             break
+    #         except github.GithubException:
+    #             print("Can't access GitHub: maybe the password is incorrect?")
+    # else:
+    g = github.Github(token)
+    try:
+        g.get_user().name
+    except github.GithubException:
+        error("Error: the access token may be incorrect")
     GITHUB_INSTANCE = g
     CURRENT_REPO = GITHUB_INSTANCE.get_repo(CURRENT_REPO_NAME)
