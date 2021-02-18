@@ -109,20 +109,15 @@ with working_directory(tmpdir + "/" + basename):
     PKG_BOOTSTRAP_URL = get_makefile_var("PKG_BOOTSTRAP_URL")
     PKG_MINIMAL = get_makefile_var("PKG_MINIMAL")
     PKG_FULL = get_makefile_var("PKG_FULL")
+    notice(f"branchname = {branchname}")
+    notice(f"PKG_BOOTSTRAP_URL = {PKG_BOOTSTRAP_URL}")
+    notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
+    notice(f"PKG_FULL = {PKG_FULL}")
 
+    notice("downloading package tarballs")   # ... outside of the directory we just created
+    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, "../"+req_packages_tarball)
+    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, "../"+all_packages_tarball)
 
-notice(f"branchname = {branchname}")
-notice(f"PKG_BOOTSTRAP_URL = {PKG_BOOTSTRAP_URL}")
-notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
-notice(f"PKG_FULL = {PKG_FULL}")
-
-# download package tarballs outside of the directory we just created
-notice("downloading package tarballs")
-with working_directory(tmpdir):
-    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, req_packages_tarball)
-    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
-
-with working_directory(tmpdir + "/" + basename):
     notice("extract the packages")
     with tarfile.open("../"+all_packages_tarball) as tar:
         tar.extractall(path="pkg")
