@@ -20,7 +20,7 @@ if sys.version_info < (3,6):
     error("Python 3.6 or newer is required")
 
 if len(sys.argv) > 2:
-    error("usage : make_packages.py [<tag>]")
+    error("usage: "+sys.argv[0]+" [<tag>]")
 
 notice("Checking prerequisites")
 verify_command_available("curl")
