@@ -1,6 +1,7 @@
 import contextlib
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -73,6 +74,19 @@ def sha256file(path):
         for data in iter(lambda: f.read(4096), b""):
             h.update(data)
         return h.hexdigest()
+
+# read a file into memory, apply some transformations, and write it back
+def patchfile(path, pattern, repl):
+    # Read in the file
+    with open(path, 'r') as file :
+        filedata = file.read()
+
+    # Replace the target string
+    filedata = re.sub(pattern, repl, filedata)
+
+    # Write the file out again
+    with open(path, 'w') as file:
+        file.write(filedata)
 
 # download file at the given URL to path `dst`
 def download(url, dst):

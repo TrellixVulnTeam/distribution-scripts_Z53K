@@ -77,16 +77,11 @@ if tag != None:
     if not is_annotated:
         error(tag + " must be an annotated tag and not lightweight")
 
-# TODO
-# write the following info into configure.ac
-# - version
-# - release day
-# - release year
-# commit_date is of format YYYY-MM-DD
+# extract commit_date with format YYYY-MM-DD
 commit_date = subprocess.run(["git", "show", "-s", "--format=%as"],
                              check=True, capture_output=True, text=True)
 commit_date = commit_date.stdout.strip()
-
+commit_year = commit_date[0:4]
 
 # derive tarball names
 basename = f"gap-{gapversion}"
@@ -120,11 +115,6 @@ badfiles = [
 ".travis.yml",
 ]
 
-# TODO: patch configure.ac, insert right date/year/version here:
-# m4_define([gap_version], [4.12dev])
-# m4_define([gap_releaseday], [today])
-# m4_define([gap_releaseyear], [this year])
-
 with working_directory(tmpdir + "/" + basename):
     notice("removing unwanted files")
     shutil.rmtree("benchmark")
@@ -135,6 +125,11 @@ with working_directory(tmpdir + "/" + basename):
             os.remove(f)
         except:
             pass
+
+    notice("patch configure.ac")
+    patchfile("configure.ac", r"m4_define\(\[gap_version\],[^\n]+", r"m4_define([gap_version], ["+gapversion+"])")
+    patchfile("configure.ac", r"m4_define\(\[gap_releaseday\],[^\n]+", r"m4_define([gap_releaseday], ["+commit_date+"])")
+    patchfile("configure.ac", r"m4_define\(\[gap_releaseyear\],[^\n]+", r"m4_define([gap_releaseyear], ["+commit_year+"])")
 
     notice("running autogen.sh")
     subprocess.run(["./autogen.sh"], check=True)
