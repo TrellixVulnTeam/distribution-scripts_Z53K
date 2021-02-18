@@ -76,6 +76,17 @@ is_annotated = "tag" == is_annotated.stdout.split()[1]
 if not is_annotated:
     error(tag + " must be an annotated tag and not lightweight")
 
+# TODO
+# write the following info into configure.ac
+# - version
+# - release day
+# - release year
+# commit_date is of format YYYY-MM-DD
+commit_date = subprocess.run(["git", "show", "-s", "--format=%as"],
+                             check=True, capture_output=True, text=True)
+commit_date = commit_date.stdout.strip()
+
+
 # derive tarball names
 basename = f"gap-{gapversion}"
 main_tarball = f"{basename}.tar.gz"
