@@ -48,7 +48,7 @@ notice(f"Detected GAP version {gapversion}")
 
 
 # derive tarball names
-basename = f"gap-{gapversion}" # TODO/FIXME insert proper name
+basename = f"gap-{gapversion}"
 main_tarball = f"{basename}.tar.gz"
 core_tarball = f"{basename}-core.tar.gz" # same as above but without pkg dir
 all_packages_tarball = f"packages-v{gapversion}.tar.gz" # only the pkg dir
@@ -80,6 +80,11 @@ badfiles = [
 ".mailmap",
 ".travis.yml",
 ]
+
+# TODO: patch configure.ac, insert right date/year/version here:
+# m4_define([gap_version], [4.12dev])
+# m4_define([gap_releaseday], [today])
+# m4_define([gap_releaseyear], [this year])
 
 with working_directory(tmpdir + "/" + basename):
     notice("removing unwanted files")
