@@ -43,10 +43,9 @@ except:
 
 # extract the GAP version from this directory *NOT THE SNAPSHOT DIR*
 try:
-    subprocess.run(["make", "cnf/GAP-VERSION-FILE"], check=True, capture_output=True)
+    gapversion = get_makefile_var("GAP_BUILD_VERSION")
 except:
     error("make sure GAP has been compiled via './configure && make'")
-gapversion = open("cnf/GAP-VERSION-FILE").readlines()[0].split('=')[1].strip()
 notice(f"Detected GAP version {gapversion}")
 
 # Now set the variable tag. If only one tag points to the current
