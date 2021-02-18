@@ -6,6 +6,7 @@
 - You can compile this version of GAP (some dependencies for that are listed below, more might be need)
 - You have a clone of the [GapWWW repository](https://github.com/gap-system/GapWWW)
 
+
 ## Dependencies
 Before starting the release process, the scripts have the following dependencies. Make sure you have the following installed and up to date
 - Python (version >=3.6) which can be installed using your favourite package manager or from [Python.org](https://www.python.org)
@@ -26,6 +27,12 @@ The following command line tools are needed, please install them using your favo
 
 ## Release Process -- The quick guide
 
+If the GitHub token is in an ENVIRONMENT variable then nothing needs to be done, otherwise a flag containing the token needs to be used in teach step
+
+<!-- # sets the global variables GITHUB_INSTANCE and CURRENT_REPO
+# If no token is provided, this uses the value of the environment variable
+# GITHUB_TOKEN. -->
+
 1. Go into the gap-system/gap (repository) directory 
 2. *Commit and tag release in git*
 2. Run `make_packages.py` with the flag `v4.X.Y`
@@ -34,6 +41,12 @@ The following command line tools are needed, please install them using your favo
 5. Run `update_website.py` 
 
 ## Release Process -- The more detailed guide
+
+If the GitHub token is in an ENVIRONMENT variable then nothing needs to be done, otherwise a flag containing the token needs to be used in teach step
+
+# sets the global variables GITHUB_INSTANCE and CURRENT_REPO
+# If no token is provided, this uses the value of the environment variable
+# GITHUB_TOKEN.
 
 1. Go into the gap-system/gap (repository) directory  
     This should be obvious why
