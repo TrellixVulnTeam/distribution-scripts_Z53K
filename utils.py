@@ -82,6 +82,7 @@ def download(url, dst):
 
 # download file at the given URL to path `dst` unless we detect
 # that the file in the given URL was already downloaded to path `dst`
+# TODO: validate if the tarball was downloaded correctely with the sha256
 def download_with_sha256(url, dst):
     if os.path.isfile(dst):
         urlSha256 = "tmp.sha256"

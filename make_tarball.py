@@ -119,14 +119,10 @@ notice(f"PKG_FULL = {PKG_FULL}")
 # download package tarballs outside of the directory we just created
 notice("downloading package tarballs")
 with working_directory(tmpdir):
-    download(PKG_BOOTSTRAP_URL+PKG_MINIMAL, req_packages_tarball)
+    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, req_packages_tarball)
 
     # TODO: enable download of full archive
-    #download(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
-
-    # TODO: add a download_with_sha256 which first downloads URL+".sha256",
-    # then uses that to (a) avoid unnecessary re-downloads, (b) to validate
-    # the tarball it downloads next
+    #download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
 
 
 with working_directory(tmpdir + "/" + basename):
