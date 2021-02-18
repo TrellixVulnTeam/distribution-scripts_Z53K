@@ -3,6 +3,7 @@ import hashlib
 import os
 import shutil
 import subprocess
+import sys
 from getpass import getpass
 import github
 
@@ -22,7 +23,7 @@ def warning(msg):
 # print error in red and exit
 def error(msg):
     print("\033[31m" + msg + "\033[0m")
-    raise UserWarning("error in GAP release script")
+    sys.exit(1)
 
 def verify_command_available(cmd):
     if shutil.which(cmd) == None:
