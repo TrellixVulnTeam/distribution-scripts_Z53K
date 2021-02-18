@@ -10,6 +10,9 @@ For starters, we work on separate steps of the plan in separate files.
 
 Non-goals: turning this into a "proper" Python package. 
 
+## TODO
+Document how to get a token
+
 ## Dependencies
 - Python >= 3.6
 - PyGithub: `pip install PyGithub`
