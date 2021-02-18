@@ -86,8 +86,10 @@ group = parser.add_argument_group('Repository details and access')
 
 group.add_argument('--token', type=str, # TODO implement
                    help='GitHub access token')
+group.add_argument('--branch', type=str,
+                   help='branch in which to make the changes (default: gap-4.X.Y)')
 group.add_argument('--push-remote', type=str, default="origin",
-                   help='git remote to which the gap-4.X.Y branch is pushed (default: origin)')
+                   help='git remote to which --branch is pushed (default: origin)')
 group.add_argument('--pr-remote', type=str, default="origin",
                    help='git remote to which a PR is made (default: origin)')
 
@@ -111,7 +113,7 @@ elif not args.use_github_date:
     release_date = datetime.datetime.today()
 
 if (args.push_remote != None and len(args.push_remote) == 0) or (args.pr_remote != None and len(args.pr_remote) == 0):
-    error("--push-remote and --pr-remote must be nonempty")
+    error("--push-remote and --pr-remote cannot be empty strings")
 
 if args.tmpdir != None:
     if not os.path.isdir(args.tmpdir):
@@ -165,7 +167,17 @@ date  = release_date.strftime('%d %B %Y')
 gap_version = release['tag_name'][1:]
 gap_version_major, gap_version_minor = gap_version.split('.')[1:]
 
-notice("using git tag " + release['tag_name'])
+if not args.branch == None:
+    branch = args.branch
+else:
+    branch = "gap-" + gap_version
+try:
+    subprocess.run(["git", "checkout", "-b", branch], check=True)
+except:
+    error("branch " + branch + " already exists")
+
+notice("on git branch " + branch + " of GapWWW")
+notice("using GAP tag " + release['tag_name'])
 notice("using GAP release: " + gap_version)
 notice("using release date: " + date)
 notice("using temporary directory: " + tmpdir)
@@ -180,36 +192,37 @@ try:
 except:
     error("cannot find " + tarball + " in release for at tag " + relrease['tag_name'])
 
+gaproot = tmpdir + 'gap-' + gap_version + '/'
+pkg_dir = gaproot + 'pkg/'
+gap_exe = gaproot + 'bin/gap.sh'
+
 # TODO error handling
 with working_directory(tmpdir):
-    notice('downloading ' + tarball_url + ' to: ' + tmpdir)
+    notice('downloading ' + tarball_url + ' to ' + tmpdir + ' . . .')
     download(tarball_url, tarball)
-    notice('extracting ' + tarball)
+    notice('extracting ' + tarball + ' to ' + gaproot + ' . . .')
     with tarfile.open(tarball) as tar:
         tar.extractall()
     notice('deleting ' + tarball)
     os.remove(tarball)
 
-gaproot = tmpdir + 'gap-' + gap_version + '/'
-pkg_dir = gaproot + 'pkg/'
-gap_exe = gaproot + 'bin/gap.sh'
 
 
 ################################################################################
 # Compile newly-download GAP so that we can use its executable
 # TODO error handling
 with working_directory(gaproot):
-    notice("compiling downloaded GAP to use it for extracting package data")
-    notice("running configure")
+    notice("compiling newly downloaded GAP to use it for extracting package data")
+    notice("running configure . . .")
     with open("../configure.log", "w") as fp:
         subprocess.run(["./configure"], check=True, stdout=fp)
-    notice("building GAP")
+    notice("building GAP . . .")
     with open("../make.log", "w") as fp:
         subprocess.run(["make"], check=True, stdout=fp)
 
-notice("Using GAP root: " + gap_exe)
+notice("Using GAP root: " + gaproot)
 notice("Using GAP executable: " + gap_exe)
-notice("Using GAP package director: " + pkg_dir)
+notice("Using GAP package directory: " + pkg_dir)
 
 
 ################################################################################
@@ -224,11 +237,10 @@ with open('_data/release.yml', 'w') as release_yml:
 subprocess.run(["git", "add", "_data/release.yml"], check=True)
 
 
+# This is currently unnecessary for new releases since we're only linking to
+# downloads on GitHub; if this changes, this code should maybe be reinstated
 ################################################################################
 # Append to _data/gap.yml if necessary
-# TODO This is currently unnecessary for new releases since we're only linking
-# to downloads on GitHub; if this changes, this code should maybe be reinstated
-#
 #with open('_data/gap.yml', 'r+') as gap_yml:
 #    for line in gap_yml:
 #        if line.startswith("gap4" + gap_version_major + "dist:"):
@@ -240,16 +252,22 @@ subprocess.run(["git", "add", "_data/release.yml"], check=True)
 
 
 ################################################################################
-# Update/rewrite the YAML data files for each package in pkg_dir
-notice("running etc/generate_package_yml_files_from_PackageInfo_files.sh")
-subprocess.run(["etc/generate_package_yml_files_from_packageinfo_files.sh", pkg_dir, gap_exe], check=True)
+# Update/rewrite the YAML data files in _Package for each package in pkg_dir
+
+# First remove all old YAML data files in _Package TODO is this a good idea?
+#subprocess.run(["git", "rm", "_Packages/*.html"], check=True)
+#if not os.path.isdir('_Packages'):
+#    # git rm _Packages/*.html may have removed the _Packages directory
+#    os.mkdir('_Packages')
+notice("running etc/rebuild_Packages_dir.sh")
+subprocess.run(["etc/rebuild_Packages_dir.sh", pkg_dir, gap_exe], check=True)
 subprocess.run(["git", "add", "_Packages/*.html"], check=True)
 
 
 ################################################################################
 # Rewrite _data/help.yml
 notice("running GAP on etc/LinksOfAllHelpSections.g")
-subprocess.run([gap_exe, "-A", "-r", "-q", "etc/LinksOfAllHelpSections.g"], check=True)
+subprocess.run([gap_exe, "-A", "-r", "-q", "--nointeract", "--norepl", "etc/LinksOfAllHelpSections.g"], check=True)
 subprocess.run(["git", "add", "_data/help.yml"], check=True)
 
 
@@ -294,7 +312,7 @@ Expert users can find the description of all installation options in the
         if asset['name'].startswith('gap-' + gap_version + '.'):
             new_file.write('\n<tr>\n')
             new_file.write('  <td align="left"><a href="' + asset['browser_download_url'] + '">' + asset['name'] + '</a></td>\n')
-            new_file.write('  <td align="left">' + MB_bytes(asset['size']) + ' MB</td>\n')
+            new_file.write('  <td align="left">' + mb_bytes(asset['size']) + ' MB</td>\n')
             # TODO download the asset and compute the sha256 checksum and put it
             # in the following cell, in the format "sha256: <checksum>"
             new_file.write('  <td align="left"></td>\n')
@@ -323,23 +341,33 @@ subprocess.run(["git", "add", release_file], check=True)
 
 
 ################################################################################
-# Create pull request to github.com/gap-system/GapWWW
-# TODO Add option --force
-subprocess.run(["git", "checkout", "-b", "gap-" + gap_version], check=True)
-subprocess.run(["git", "commit", "-m", "'Update website for GAP " + gap_version + " release'"], check=True)
-verify_git_clean() # Make sure we didn't miss anything
+# Commit, push, and create pull request to github.com/gap-system/GapWWW
 
-print("TODO: git push origin gap-" + gap_version )
-print("TODO: create pull request")
+# TODO if git is clean, then the website is aleady up to date, so we should
+# exit gracefully
 
-sys.exit(0)
+try:
+    subprocess.run(["git", "commit", "-m", "'Update website for GAP " + gap_version + " release'"], check=True)
+except:
+    error("failed to commit to new branch")
+
+try:
+    verify_git_clean()
+except:
+    error("")
+
+try:
+    subprocess.run(["git", "push", args.push_remote, branch], check=True)
+except:
+    error("failed to push " + branch + " to " + args.push_remote)
+
+notice("TODO: create pull request")
 
 # TODO Delete the temporary gap directory and log files, when we are finished with it
 # TODO Download all package tarballs, and compute their sizes and sha256 checksums
 # TODO stfp tarballs from GitHub release system to gap-system.org
-# sftp gap-web@gap-web.host.cs.st-andrews.ac.uk
-# cd files.gap-system.org
-
+# TODO sftp package manuals
+#
 # also commit and/or upload the GAP and GAP package manuals somewhere (HTML and PDF could go into different places)
 # possibly helpful for inspiration:
 
