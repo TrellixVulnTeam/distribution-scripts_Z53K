@@ -50,7 +50,9 @@ notice(f"Detected GAP version {gapversion}")
 # derive tarball names
 basename = f"gap-{gapversion}"
 main_tarball = f"{basename}.tar.gz"
+main_zip = f"{basename}.zip"
 core_tarball = f"{basename}-core.tar.gz" # same as above but without pkg dir
+core_zip = f"{basename}-core.zip"
 all_packages_tarball = f"packages-v{gapversion}.tar.gz" # only the pkg dir
 req_packages_tarball = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
 
@@ -140,10 +142,16 @@ with working_directory(tmpdir):
     with tarfile.open(main_tarball, "w:gz") as tar:
         tar.add(basename)
 
+    notice(f"creating {main_zip}")
+    shutil.make_archive(main_zip[0:-4], 'zip', basename)
+
     notice(f"creating {core_tarball}")
     shutil.rmtree(basename + "/pkg")
     with tarfile.open(core_tarball, "w:gz") as tar:
         tar.add(basename)
+
+    notice(f"creating {core_zip}")
+    shutil.make_archive(core_zip[0:-4], 'zip', basename)
 
 
 # TODO: also create .tar.bz2, .tar.xz (?), .zip (Python should be able to deal with all of them)
