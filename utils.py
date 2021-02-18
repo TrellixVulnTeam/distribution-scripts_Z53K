@@ -104,6 +104,8 @@ def check_whether_github_release_exists(tag):
     return False
 
 # sets the global variables GITHUB_INSTANCE and CURRENT_REPO
+# If no token is provided, this uses the value of the environment variable
+# GITHUB_TOKEN.
 def initialize_github(token=None):
     global GITHUB_INSTANCE, CURRENT_REPO
     if GITHUB_INSTANCE != None or CURRENT_REPO != None:
@@ -113,17 +115,6 @@ def initialize_github(token=None):
         token = os.environ["GITHUB_TOKEN"]
     if token == None:
         error("Error: no access token found or provided")
-    ## This code does not work. Authentication fails
-    #     while True:
-    #         name = input("Username for 'https://github.com': ")
-    #         password = getpass("Password for " + name + ": ")
-    #         g = github.Github(name, password)
-    #         try:
-    #             g.get_user().name
-    #             break
-    #         except github.GithubException:
-    #             print("Can't access GitHub: maybe the password is incorrect?")
-    # else:
     g = github.Github(token)
     try:
         g.get_user().name
