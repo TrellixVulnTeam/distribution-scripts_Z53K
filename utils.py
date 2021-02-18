@@ -75,7 +75,8 @@ def sha256file(path):
         return h.hexdigest()
 
 # download file at the given URL to path `dst`
-# TODO: check at startup if `curl is present`
+# TODO: make an download_with_sha256 which only downloads the file if the
+# sha256 differ
 def download(url, dst):
     res = subprocess.run(["curl", "-L", "-C", "-", "-o", dst, url])
     if res.returncode != 0:
