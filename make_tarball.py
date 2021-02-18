@@ -49,32 +49,34 @@ except:
 gapversion = open("cnf/GAP-VERSION-FILE").readlines()[0].split('=')[1].strip()
 notice(f"Detected GAP version {gapversion}")
 
-# Now set the variable tag. If only one tag points to the current commit, we
-# use that tag. If more than one tag points to the current commit. In that
-# case, the user has to provide the tag as an input to the script.
+# Now set the variable tag. If only one tag points to the current
+# commit, we use that tag. If more than one tag points to the current
+# commit, the user has to provide the tag as an input to the script.
+# If there is no tag, this is a nightly snapshot "release".
 tags = subprocess.run(["git", "tag", "--points-at"],
                      check=True, capture_output=True, text=True)
-tags = tags.strip().split('\n')
-provided_tag = None
-if len(sys.argv) = 2:
+tags = tags.stdout.strip().split('\n')
+if len(sys.argv) == 2:
     provided_tag = sys.argv[1]
-if provided_tag == None:
-    if len(tags) > 1:
-        error("Current commit has more than one tag. Provide a tag as argument")
+    if not provided_tag in tags:
+        error(f"tag '{provided_tag}' does not point to the current commit")
+    tag = provided_tag
+elif len(tags) > 1:
+    error("Current commit has more than one tag. Provide a tag as argument")
+elif len(tags) == 1 and len(tags[0]) > 0:
     tag = tags[0]
 else:
-    if not provided_tag in tags:
-        error("<tag> does not point to the current commit")
-    tag = provided_tag
+    tag = None
 
 # Make sure tag is annotated and not lightweight.
 # lightweight vs annotated
 # https://stackoverflow.com/questions/40479712/how-can-i-tell-if-a-given-git-tag-is-annotated-or-lightweight#40499437
-is_annotated = subprocess.run(["git", "for-each-ref", "refs/tags/" + tag],
-                              check=True, capture_output=True, text=True)
-is_annotated = "tag" == is_annotated.stdout.split()[1]
-if not is_annotated:
-    error(tag + " must be an annotated tag and not lightweight")
+if tag != None:
+    is_annotated = subprocess.run(["git", "for-each-ref", "refs/tags/" + tag],
+                                  check=True, capture_output=True, text=True)
+    is_annotated = "tag" == is_annotated.stdout.split()[1]
+    if not is_annotated:
+        error(tag + " must be an annotated tag and not lightweight")
 
 # TODO
 # write the following info into configure.ac
