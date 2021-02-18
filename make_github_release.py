@@ -75,3 +75,4 @@ try:
 except:
     error("Error: The upload failed")
 
+# TODO: remove tmpdir that was created in make_tarball.py
