@@ -1,7 +1,7 @@
 # How To Make a GAP Release for version 4.X.Y
  
 **This release process assumes the following**
-- A stable branch of GAP has been identified or agreed upon. This branch will be identified here as `stable-4.X.Y`
+- A stable branch of GAP has been identified or agreed upon. This branch will be identified here as `stable-4.X.Y` and the Release Notes in Changes.md have been created.
 - You have a clone of the [GAP repository](https://github.com/gap-system/gap)
 - You can compile this version of GAP (some dependencies for that are listed below, more might be need)
 - You have a clone of the [GapWWW repository](https://github.com/gap-system/GapWWW)
