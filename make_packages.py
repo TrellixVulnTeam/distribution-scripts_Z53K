@@ -31,7 +31,7 @@ CURRENT_BRANCH = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
                                 text=True,
                                 capture_output=True)
 CURRENT_BRANCH = CURRENT_BRANCH.stdout.strip()
-utils.CURRENT_REPO.create_git_release(TAG, TAG, "test message",
+RELEASE = utils.CURRENT_REPO.create_git_release(TAG, TAG, "test message",
                                       target_commitish=CURRENT_BRANCH,
                                       prerelease=True)
 
@@ -66,10 +66,12 @@ utils.download(URL_TO_PACKAGE_ARCHIVES + PACKAGES_REQUIRED_SRC,
                PACKAGES_REQUIRED_DST)
 
 # TODO: what happens if this crashes during the upload?
-print("Uploading " + PACKAGES_DST + " and " + PACKAGES_REQUIRED_DST)
-# --clobber means overwrite files with the same name
-#subprocess.run("gh", "release", "upload", "--clobber",
-#               TAG,
-#               PACKAGES_DST,
-#               PACKAGES_REQUIRED_DST,
-#               check=True)
+utils.notice("Uploading " + PACKAGES_DST + " and " + PACKAGES_REQUIRED_DST)
+
+# Upload all assets to release
+try:
+    RELEASE.upload_asset(PACKAGES_DST)
+    RELEASE.upload_asset(PACKAGES_REQUIRED_DST)
+except:
+    error("Error: The upload failed")
+
