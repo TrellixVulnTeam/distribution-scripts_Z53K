@@ -169,26 +169,35 @@ with working_directory(tmpdir + "/" + basename):
     subprocess.run(["make", "distclean"], check=True, capture_output=True)
 
 
+# create the archives
 with working_directory(tmpdir):
-    notice(f"creating {basename}.tar.gz")
+    filename = f"{basename}.tar.gz"
+    notice(f"creating {filename}")
     shutil.make_archive(basename, 'gztar', ".", basename)
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
 
-    notice(f"creating {basename}.zip")
+    filename = f"{basename}.zip"
+    notice(f"creating {filename}")
     shutil.make_archive(basename, 'zip', ".", basename)
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
 
     notice("remove packages")
     shutil.rmtree(basename + "/pkg")
 
-    notice(f"creating {basename}-core.tar.gz")
+    filename = f"{basename}-core.tar.gz"
+    notice(f"creating {filename}")
     shutil.make_archive(basename+"-core", 'gztar', ".", basename)
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
 
-    notice(f"creating {basename}-zip")
+    filename = f"{basename}-core.zip"
+    notice(f"creating {filename}")
     shutil.make_archive(basename+"-core", 'zip', ".", basename)
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
 
-
-# TODO: also create .tar.bz2, .tar.xz (?), .zip (Python should be able to deal with all of them)
-
-# TODO: also create sha256 checksum files for everything, using sha256file() in utils.py
 
 # The end
 notice("DONE")
