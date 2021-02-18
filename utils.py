@@ -65,7 +65,7 @@ def get_makefile_var(var):
     assert kv[0] == var
     return kv[1]
 
-# compute the sha256 checkum of a file
+# compute the sha256 checksum of a file
 def sha256file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -75,12 +75,24 @@ def sha256file(path):
         return h.hexdigest()
 
 # download file at the given URL to path `dst`
-# TODO: make an download_with_sha256 which only downloads the file if the
-# sha256 differ
 def download(url, dst):
     res = subprocess.run(["curl", "-L", "-C", "-", "-o", dst, url])
     if res.returncode != 0:
         error('failed downloading ' + url)
+
+# download file at the given URL to path `dst` unless we detect
+# that the file in the given URL was already downloaded to path `dst`
+def download_with_sha256(url, dst):
+    if os.path.isfile(dst):
+        urlSha256 = "tmp.sha256"
+        download(url + ".sha256", urlSha256)
+        with open(urlSha256, "r") as f:
+            if (f.read().replace('\n', '') != sha256file(dst)):
+                os.remove(dst)
+                download(url, dst)
+        os.remove(urlSha256)
+    else:
+        download(url, dst)
 
 def safe_git_fetch_tags():
     try:
