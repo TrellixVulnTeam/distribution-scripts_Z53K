@@ -28,7 +28,7 @@ verify_git_repo()
 verify_git_clean()
 
 # fetch tags, so we can properly detect
-subprocess.run(["git", "fetch", "--tags"], check=True)
+safe_git_fetch_tags()
 
 
 tmpdir = os.getcwd() + "/tmp"

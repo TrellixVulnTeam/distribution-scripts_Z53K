@@ -82,9 +82,17 @@ def download(url, dst):
     if res.returncode != 0:
         error('failed downloading ' + url)
 
+def safe_git_fetch_tags():
+    try:
+        subprocess.run(["git", "fetch", "--tags"], check=True)
+    except subprocess.CalledProcessError:
+        error('failed to fetch tags, you may have to do \n'
+              + 'git fetch --tags -f')
+
+
 # Returns a boolean
 def check_whether_git_tag_exists(tag):
-    subprocess.run(["git", "fetch", "--tags"])
+    safe_git_fetch_tags()
     res = subprocess.run(["git", "tag", "-l"],
                          capture_output=True,
                          text=True,
