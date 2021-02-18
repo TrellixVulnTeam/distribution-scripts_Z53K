@@ -120,15 +120,11 @@ notice(f"PKG_FULL = {PKG_FULL}")
 notice("downloading package tarballs")
 with working_directory(tmpdir):
     download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, req_packages_tarball)
-
-    # TODO: enable download of full archive
-    #download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
-
+    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, all_packages_tarball)
 
 with working_directory(tmpdir + "/" + basename):
     notice("extract the packages")
-    # TODO: switch to all_packages_tarball
-    with tarfile.open("../"+req_packages_tarball) as tar:
+    with tarfile.open("../"+all_packages_tarball) as tar:
         tar.extractall(path="pkg")
 
     notice("building the manuals")
