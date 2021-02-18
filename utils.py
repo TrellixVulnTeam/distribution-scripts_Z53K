@@ -108,9 +108,9 @@ def initialize_github(token=None):
             g = github.Github(name, password)
             try:
                 g.get_user().name
+                break
             except github.GithubException:
                 print("Can't access GitHub: maybe the password is incorrect?")
-                continue
     else:
         g = github.Github(token)
         try:
