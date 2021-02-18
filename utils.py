@@ -1,4 +1,5 @@
 import contextlib
+import hashlib
 import os
 import shutil
 import subprocess
@@ -62,6 +63,15 @@ def get_makefile_var(var):
     assert len(kv) == 2
     assert kv[0] == var
     return kv[1]
+
+# compute the sha256 checkum of a file
+def sha256file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        # Read and update hash string value in blocks of 4K
+        for data in iter(lambda: f.read(4096), b""):
+            h.update(data)
+        return h.hexdigest()
 
 # download file at the given URL to path `dst`
 # TODO: check at startup if `curl is present`

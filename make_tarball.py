@@ -8,7 +8,6 @@
 
 from utils import *
 
-import hashlib
 import shutil
 import subprocess
 import sys
@@ -157,8 +156,7 @@ with working_directory(tmpdir):
 
 # TODO: also create .tar.bz2, .tar.xz (?), .zip (Python should be able to deal with all of them)
 
-# TODO: also create sha256 checksum files for everything (Python can do this,
-# lots of suggestions for this on stackoverflows)
+# TODO: also create sha256 checksum files for everything, using sha256file() in utils.py
 
 # The end
 notice("DONE")
