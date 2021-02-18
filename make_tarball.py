@@ -19,6 +19,9 @@ import zipfile
 if sys.version_info < (3,6):
     error("Python 3.6 or newer is required")
 
+if len(sys.argv) > 2:
+    error("usage : make_packages.py [<tag>]")
+
 notice("Checking prerequisites")
 verify_command_available("curl")
 verify_command_available("git")
@@ -46,6 +49,32 @@ except:
 gapversion = open("cnf/GAP-VERSION-FILE").readlines()[0].split('=')[1].strip()
 notice(f"Detected GAP version {gapversion}")
 
+# Now set the variable tag. If only one tag points to the current commit, we
+# use that tag. If more than one tag points to the current commit. In that
+# case, the user has to provide the tag as an input to the script.
+tags = subprocess.run(["git", "tag", "--points-at"],
+                     check=True, capture_output=True, text=True)
+tags = tags.strip().split('\n')
+provided_tag = None
+if len(sys.argv) = 2:
+    provided_tag = sys.argv[1]
+if provided_tag == None:
+    if len(tags) > 1:
+        error("Current commit has more than one tag. Provide a tag as argument")
+    tag = tags[0]
+else:
+    if not provided_tag in tags:
+        error("<tag> does not point to the current commit")
+    tag = provided_tag
+
+# Make sure tag is annotated and not lightweight.
+# lightweight vs annotated
+# https://stackoverflow.com/questions/40479712/how-can-i-tell-if-a-given-git-tag-is-annotated-or-lightweight#40499437
+is_annotated = subprocess.run(["git", "for-each-ref", "refs/tags/" + tag],
+                              check=True, capture_output=True, text=True)
+is_annotated = "tag" == is_annotated.stdout.split()[1]
+if not is_annotated:
+    error(tag + " must be an annotated tag and not lightweight")
 
 # derive tarball names
 basename = f"gap-{gapversion}"
