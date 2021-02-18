@@ -82,18 +82,15 @@ def download(url, dst):
 
 # download file at the given URL to path `dst` unless we detect
 # that the file in the given URL was already downloaded to path `dst`
-# TODO: validate if the tarball was downloaded correctely with the sha256
 def download_with_sha256(url, dst):
-    if os.path.isfile(dst):
-        urlSha256 = "tmp.sha256"
-        download(url + ".sha256", urlSha256)
-        with open(urlSha256, "r") as f:
-            if (f.read().replace('\n', '') != sha256file(dst)):
-                os.remove(dst)
-                download(url, dst)
-        os.remove(urlSha256)
-    else:
+    download(url + ".sha256", dst + ".sha256")
+    with open(dst + ".sha256", "r") as f:
+        expected_checksum = f.read().strip()
+    if not os.path.isfile(dst):
         download(url, dst)
+    actual_checksum = sha256file(dst)
+    if expected_checksum != actual_checksum:
+        error("checksum for 'dst' expected to be {expected_checksum} but got {actual_checksum}")
 
 def safe_git_fetch_tags():
     try:
