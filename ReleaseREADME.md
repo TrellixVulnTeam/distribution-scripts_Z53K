@@ -22,47 +22,51 @@ The following command line tools are needed, please install them using your favo
 - `git`
 - `make`
 - `autoconf`
-- `gh`
+<!-- - `gh` -->
 - `tar`
 
 ## Release Process -- The quick guide
 
-If the GitHub token is in an ENVIRONMENT variable then nothing needs to be done, otherwise a flag containing the token needs to be used in teach step
+If the GitHub token is in an ENVIRONMENT variable called `GITHUB_TOKEN` then nothing needs to be done. 
+Otherwise a flag containing the token is needed when running `make_github_release.py`.
 
-<!-- # sets the global variables GITHUB_INSTANCE and CURRENT_REPO
-# If no token is provided, this uses the value of the environment variable
-# GITHUB_TOKEN. -->
 
 1. Go into the gap-system/gap (repository) directory 
-2. *Commit and tag release in git*
-2. Run `make_packages.py` with the flag `v4.X.Y`
+2. Commit and tag release in git (using command line)
+    ```
+    git tag -m "Version 4.X.Y" v4.X.Y
+    git push --tags
+    ```
 3. Run `make_tarball.py`
-4. Change to the gap-system/GapWWW (repository) directory
-5. Run `update_website.py` 
+4. Run `make_github_release.py`
+5. Change to the gap-system/GapWWW (repository) directory
+6. Run `update_website.py` 
 
 ## Release Process -- The more detailed guide
 
-If the GitHub token is in an ENVIRONMENT variable then nothing needs to be done, otherwise a flag containing the token needs to be used in teach step
+If the GitHub token is in an ENVIRONMENT variable called `GITHUB_TOKEN` then nothing needs to be done. 
+Otherwise a flag containing the token is needed when running `make_github_release.py`.
 
-# sets the global variables GITHUB_INSTANCE and CURRENT_REPO
-# If no token is provided, this uses the value of the environment variable
-# GITHUB_TOKEN.
 
 1. Go into the gap-system/gap (repository) directory  
     This should be obvious why
-2. *Commit and tag release in git*  
-    *I am unsure now if this is still going to be done manually* 
-2. Run `make_packages.py` with the flag `v4.X.Y`  
-    This will pull the stable tar ball of packages from the archive, rename it to the right version and upload it to the right place in the gap repository.
+2. Commit and tag release in git (using command line)  
+    ```
+    git tag -m "Version 4.X.Y" v4.X.Y
+    git push --tags
+    ```
 3. Run `make_tarball.py`  
-    - Fetches the stable version of GAP
-    - Makes and configures GAP to check that it is indeed stable
+    - Exports repository content into new tmp directory via `git archive`
+    - Makes and configures GAP to check that it is available (and this is needed for the manuals)
     - Fetches the pkg tar ball
     - Builds the manuals
     - Cleans everything up
     - Builds the tar ball(s) and checksum files
-    - Uploads the tar balls
-4. Change to the gap-system/GapWWW (repository) directory  
+4. Run `make_github_release.py`  
+    - Creates the release on GitHub which matches the tag
+    - Uploads the tar balls as assets 
+    - Removes the tmp directory from user
+5. Change to the gap-system/GapWWW (repository) directory  
    This should be obvious why
-5. Run `update_website.py`   
-    - 
+6. Run `update_website.py` 
+   - Does some Wilf Magic
