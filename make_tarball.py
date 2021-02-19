@@ -67,6 +67,11 @@ elif len(tags) == 1 and len(tags[0]) > 0:
 else:
     tag = None
 
+if tag != None:
+    notice(f"Using tag {tag}.")
+else:
+    notice(f"Using no tag, this is a snapshot release.")
+
 # Make sure tag is annotated and not lightweight.
 # lightweight vs annotated
 # https://stackoverflow.com/questions/40479712/how-can-i-tell-if-a-given-git-tag-is-annotated-or-lightweight#40499437
