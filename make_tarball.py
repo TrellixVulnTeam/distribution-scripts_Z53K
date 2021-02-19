@@ -144,8 +144,7 @@ with working_directory(tmpdir + "/" + basename):
     notice("building GAP")
     with open("../make.log", "w") as fp:
         try:
-            #subprocess.run(["make", "-j8"], check=True, stdout=subprocess.PIPE, stderr=fp) # FIXME: currently broken on gap master, fix already submitted
-            subprocess.run(["make"], check=True, stdout=subprocess.PIPE, stderr=fp)
+            subprocess.run(["make", "-j8"], check=True, stdout=subprocess.PIPE, stderr=fp)
         except CalledProcessError:
             error("make failed. See make.log.")
 
