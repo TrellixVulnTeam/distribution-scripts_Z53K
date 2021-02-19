@@ -193,7 +193,7 @@ with working_directory(tmpdir):
         file.write(sha256file(filename))
 
     manifest_filename = "__manifest_make_tarball"
-    notice("Creating manifest {manifest_filename}")
+    notice(f"Creating manifest {manifest_filename}")
     with open(manifest_filename, 'w') as manifest:
         for archive in archives_to_create:
             manifest.write(f"{archive}\n")
