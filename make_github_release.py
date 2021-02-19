@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-# This script is intended to implement step 3 of
-# <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.:
-#
-# 3. Upload current packages as "packages for 4.11.3"
+# This script is intended to implement step 6 of
+# <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
+# it makes a github relase and uploads all tar balls as assets.
 
 import sys, subprocess
 # If we do import * from utils, then initialize_github can't overwrite the
