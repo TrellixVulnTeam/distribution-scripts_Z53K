@@ -60,13 +60,14 @@ notice(f"Detected GAP version {gapversion}")
 tags = subprocess.run(["git", "tag", "--points-at"],
                      check=True, capture_output=True, text=True)
 tags = tags.stdout.strip().split('\n')
+tags = [ tag for tag in tags if is_annotated_git_tag(tag) ]
 if len(sys.argv) == 2:
     provided_tag = sys.argv[1]
     if not provided_tag in tags:
-        error(f"tag '{provided_tag}' does not point to the current commit")
+        error(f"tag '{provided_tag}' does not point to the current commit or is not annotated")
     tag = provided_tag
 elif len(tags) > 1:
-    error("Current commit has more than one tag. Provide a tag as argument")
+    error("Current commit has more than one annotated tag. Provide a tag as argument")
 elif len(tags) == 1 and len(tags[0]) > 0:
     tag = tags[0]
 else:
@@ -75,12 +76,7 @@ else:
 if tag != None:
     notice(f"Using tag {tag}.")
 else:
-    notice(f"Using no tag, this is a snapshot release.")
-
-# Make sure tag is annotated and not lightweight.
-if tag != None:
-    if not is_annotated_git_tag(tag):
-        error(tag + " must be an annotated tag and not lightweight")
+    notice(f"Found no annotated tag, this is a snapshot release.")
 
 # extract commit_date with format YYYY-MM-DD
 commit_date = subprocess.run(["git", "show", "-s", "--format=%as"],
