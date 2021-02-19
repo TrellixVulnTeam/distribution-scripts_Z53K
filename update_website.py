@@ -127,9 +127,8 @@ if (args.push_remote != None and len(args.push_remote) == 0) or (args.pr_remote 
     error("--push-remote and --pr-remote cannot be empty strings")
 
 if args.tmpdir != None:
-    if not os.path.isdir(args.tmpdir):
-        # TODO check that it is writeable too
-        error("--tmpdir does not describe a directory")
+    if not os.path.isdir(args.tmpdir) or not os.access(args.tmpdir, os.W_OK):
+        error("--tmpdir does not describe a writeable directory")
     tmpdir = args.tmpdir
 else:
     tmpdir = tempfile.gettempdir()
