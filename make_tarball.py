@@ -140,6 +140,13 @@ with working_directory(tmpdir + "/" + basename):
 
 
 # create the archives
+# If you create additional archives, make sure to add them to archives_to_create!
+archives_to_create = [
+    f"{basename}.tar.gz",
+    f"{basename}.zip",
+    f"{basename}-core.tar.gz",
+    f"{basename}-core.zip"
+]
 with working_directory(tmpdir):
     filename = f"{basename}.tar.gz"
     notice(f"Creating {filename}")
@@ -168,6 +175,11 @@ with working_directory(tmpdir):
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
+    manifest_filename = "__manifest_make_tarball"
+    notice("Creating manifest {manifest_filename}")
+    with open(manifest_filename, 'w') as manifest:
+        for archive in archives_to_create:
+            manifest.write(f"{archive}\n")
 
 # The end
 notice("DONE")
