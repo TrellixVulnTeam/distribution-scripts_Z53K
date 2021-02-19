@@ -42,9 +42,9 @@ except:
 notice(f"Detected GAP version {gapversion}")
 
 if gapversion.find("dev") == -1:
-    notice(f"THIS LOOKS LIKE A RELEASE.")
+    notice(f"--- THIS LOOKS LIKE A RELEASE ---")
 else:
-    notice(f"THIS LOOKS LIKE A NIGHTLY BUILD.")
+    notice(f"--- THIS LOOKS LIKE A NIGHTLY BUILD ---")
 
 
 # extract commit_date with format YYYY-MM-DD
