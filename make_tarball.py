@@ -29,7 +29,7 @@ verify_git_clean()
 # fetch tags, so we can properly detect
 safe_git_fetch_tags()
 
-
+# Creating tmp directory
 tmpdir = os.getcwd() + "/tmp"
 notice(f"Files will be put in {tmpdir}")
 try:
@@ -63,7 +63,7 @@ all_packages_tarball = f"{all_packages}.tar.gz"
 req_packages = f"packages-required-v{gapversion}" # a subset of the above
 req_packages_tarball = f"{req_packages}.tar.gz"
 
-
+# Exporting repository content into tmp 
 notice("Exporting repository content via `git archive`")
 rawbasename = "gap-raw"
 rawgap_tarfile = f"{tmpdir}/{rawbasename}.tar"
@@ -78,7 +78,7 @@ with tarfile.open(rawgap_tarfile) as tar:
     tar.extractall(path=tmpdir)
 os.remove(rawgap_tarfile)
 
-
+# Cleaning things up
 notice("Processing exported content")
 
 badfiles = [
@@ -108,6 +108,7 @@ with working_directory(tmpdir + "/" + basename):
     patchfile("configure.ac", r"m4_define\(\[gap_releaseday\],[^\n]+", r"m4_define([gap_releaseday], ["+commit_date+"])")
     patchfile("configure.ac", r"m4_define\(\[gap_releaseyear\],[^\n]+", r"m4_define([gap_releaseyear], ["+commit_year+"])")
 
+    # Building GAP
     notice("Running autogen.sh")
     subprocess.run(["./autogen.sh"], check=True)
 
@@ -127,6 +128,7 @@ with working_directory(tmpdir + "/" + basename):
     notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
     notice(f"PKG_FULL = {PKG_FULL}")
 
+    # Downloading, building and extracting pkgs manuals
     notice("Downloading package tarballs")   # ... outside of the directory we just created
     download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, "../"+req_packages_tarball)
     download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, "../"+all_packages_tarball)
