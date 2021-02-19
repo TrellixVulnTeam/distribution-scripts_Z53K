@@ -74,7 +74,8 @@ else:
     tag = None
 
 if tag != None:
-    notice(f"Using tag {tag}.")
+    notice(f"Using tag '{tag}' as GAP version.")
+    gapversion = tag
 else:
     notice(f"Found no annotated tag, this is a snapshot release.")
 
