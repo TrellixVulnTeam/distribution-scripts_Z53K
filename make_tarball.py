@@ -9,9 +9,6 @@ from utils import *
 import shutil
 import subprocess
 import sys
-import tarfile
-import tempfile
-import zipfile
 
 # Insist on Python >= 3.6 for f-strings and other goodies
 if sys.version_info < (3,6):
@@ -59,7 +56,7 @@ commit_year = commit_date[0:4]
 basename = f"gap-{gapversion}"
 all_packages = f"packages-v{gapversion}" # only the pkg dir
 all_packages_tarball = f"{all_packages}.tar.gz"
-req_packages = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
+req_packages = f"packages-required-v{gapversion}" # a subset of the above
 req_packages_tarball = f"{req_packages}.tar.gz"
 
 
@@ -165,7 +162,17 @@ with working_directory(tmpdir):
 
     filename = all_packages + '.zip'
     notice(f"Creating {filename}")
-    shutil.make_archive(basename + "/pkg", 'zip', ".", "pkg")
+    shutil.make_archive(all_packages, 'zip', basename,  "pkg")
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
+
+    notice("Extract required packages")
+    with tarfile.open("../"+req_packages_tarball) as tar:
+        tar.extractall(path=req_packages)
+
+    filename = req_packages + '.zip'
+    notice(f"Creating {filename}")
+    shutil.make_archive(req_packages, 'zip', ".",  req_packages)
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
