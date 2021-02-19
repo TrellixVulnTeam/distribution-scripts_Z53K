@@ -4,8 +4,8 @@
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
 # it makes a github relase and uploads all tar balls as assets.
 #
-# The version of the gap release to be created can be provided as argument to
-# this script and is handled as in make_tarball.py.
+# As in make_tarball.py, the version of the gap release is taken from the
+# Makefile variable GAP_BUILD_VERSION.
 
 # If we do import * from utils, then initialize_github can't overwrite the
 # global GITHUB_INSTANCE and CURRENT_REPO variables.

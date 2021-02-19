@@ -4,6 +4,9 @@
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
 # create the archives that form the gap release.
 
+# The version of the gap release is taken from the Makefile variable
+# GAP_BUILD_VERSION.
+
 from utils import *
 
 import shutil
