@@ -126,16 +126,16 @@ with working_directory(tmpdir + "/" + basename):
     notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
     notice(f"PKG_FULL = {PKG_FULL}")
 
-    notice("Downloading package tarballs")   # ... outside of the directory we just created
-    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, "../"+req_packages_tarball)
-    download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, "../"+all_packages_tarball)
+    # notice("Downloading package tarballs")   # ... outside of the directory we just created
+    # download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, "../"+req_packages_tarball)
+    # download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, "../"+all_packages_tarball)
 
-    notice("Extract the packages")
-    with tarfile.open("../"+all_packages_tarball) as tar:
-        tar.extractall(path="pkg")
+    # notice("Extract the packages")
+    # with tarfile.open("../"+all_packages_tarball) as tar:
+    #     tar.extractall(path="pkg")
 
-    notice("Building the manuals")
-    run_with_log(["make", "doc"], "gapdoc", "building the manuals")
+    # notice("Building the manuals")
+    # run_with_log(["make", "doc"], "gapdoc", "building the manuals")
 
     notice("Remove generated files we don't want for distribution")
     run_with_log(["make", "distclean"], "make-distclean", "make distclean")
@@ -146,9 +146,9 @@ with working_directory(tmpdir + "/" + basename):
 # TODO
 archives_to_create = [
     all_packages_tarball,
-    f"{all_packages_tarball}.sha256"
+    f"{all_packages_tarball}.sha256",
     req_packages_tarball,
-    f"{req_packages_tarball}.sha256"
+    f"{req_packages_tarball}.sha256",
     f"{basename}.tar.gz",
     f"{basename}.tar.gz.sha256",
     f"{basename}.zip",
@@ -159,44 +159,44 @@ archives_to_create = [
     f"{basename}-core.zip.sha256"
 ]
 with working_directory(tmpdir):
-    filename = f"{basename}.tar.gz"
-    notice(f"Creating {filename}")
-    shutil.make_archive(basename, 'gztar', ".", basename)
-    with open(filename+".sha256", 'w') as file:
-        file.write(sha256file(filename))
+    # filename = f"{basename}.tar.gz"
+    # notice(f"Creating {filename}")
+    # shutil.make_archive(basename, 'gztar', ".", basename)
+    # with open(filename+".sha256", 'w') as file:
+    #     file.write(sha256file(filename))
 
-    filename = f"{basename}.zip"
-    notice(f"Creating {filename}")
-    shutil.make_archive(basename, 'zip', ".", basename)
-    with open(filename+".sha256", 'w') as file:
-        file.write(sha256file(filename))
+    # filename = f"{basename}.zip"
+    # notice(f"Creating {filename}")
+    # shutil.make_archive(basename, 'zip', ".", basename)
+    # with open(filename+".sha256", 'w') as file:
+    #     file.write(sha256file(filename))
 
     filename = all_packages + '.zip'
     notice(f"Creating {filename}")
-    shutil.make_archive(basename + "/pkg", 'zip', ".", "pkg")
+    shutil.make_archive(all_packages, 'zip', "basename",  "pkg")
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
-    notice("Remove packages")
-    shutil.rmtree(basename + "/pkg")
+    # notice("Remove packages")
+    # shutil.rmtree(basename + "/pkg")
 
-    filename = f"{basename}-core.tar.gz"
-    notice(f"Creating {filename}")
-    shutil.make_archive(basename+"-core", 'gztar', ".", basename)
-    with open(filename+".sha256", 'w') as file:
-        file.write(sha256file(filename))
+    # filename = f"{basename}-core.tar.gz"
+    # notice(f"Creating {filename}")
+    # shutil.make_archive(basename+"-core", 'gztar', ".", basename)
+    # with open(filename+".sha256", 'w') as file:
+    #     file.write(sha256file(filename))
 
-    filename = f"{basename}-core.zip"
-    notice(f"Creating {filename}")
-    shutil.make_archive(basename+"-core", 'zip', ".", basename)
-    with open(filename+".sha256", 'w') as file:
-        file.write(sha256file(filename))
+    # filename = f"{basename}-core.zip"
+    # notice(f"Creating {filename}")
+    # shutil.make_archive(basename+"-core", 'zip', ".", basename)
+    # with open(filename+".sha256", 'w') as file:
+    #     file.write(sha256file(filename))
 
-    manifest_filename = "__manifest_make_tarball"
-    notice("Creating manifest {manifest_filename}")
-    with open(manifest_filename, 'w') as manifest:
-        for archive in archives_to_create:
-            manifest.write(f"{archive}\n")
+    # manifest_filename = "__manifest_make_tarball"
+    # notice("Creating manifest {manifest_filename}")
+    # with open(manifest_filename, 'w') as manifest:
+    #     for archive in archives_to_create:
+    #         manifest.write(f"{archive}\n")
 
 # The end
 notice("DONE")
