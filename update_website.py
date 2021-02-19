@@ -58,6 +58,10 @@ epilog=
   https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 """)
 
+# TODO Idea: allow there to be different options: whether or not the release
+# we're dealing with represents the 'latest' release this might be useful if,
+# for instance, we want to to update the details/assets of an older GAP version
+# if they change later, or if GAP 4.13.4 is released after GAP 4.14.0, say.
 # TODO allow user to specify which branch to make the changes on?
 # TODO Let the user choose between pushing directly and making a PR?
 # TODO let the user supply a gaproot containing the downloaded and unpacked GAP archive?
@@ -71,6 +75,8 @@ group = parser.add_argument_group('GAP release details')
 
 group.add_argument('-t', '--tag', type=str,
                    help='git tag of the GAP release, e.g. v4.15.2 (default: latest release)')
+# TODO Perhaps the default should be to use the date in GAP's "configure" file?
+# TODO This should be an option at least!
 group.add_argument('-d', '--date', type=str,
                    help='YYYY-MM-DD GAP release date (default: today\'s date)')
 group.add_argument('--use-github-date', action='store_true',
@@ -172,6 +178,20 @@ else:
         error("non-existent or amnbiguous release tag name: " + args.tag)
     release = release[0]
 
+# Divide the assets betwen Windows and UNIX assets
+# TODO should archives e.g.  packages-required-v4.11.0.tar.gz be in assets_unix?
+assets = release['assets']
+def is_windows_asset(name):
+    return any(name.endswith(x) for x in ['exe', '-win.zip', '-win32.zip'])
+assets_windows = []
+assets_unix = []
+for asset in assets:
+    if not asset['name'].endswith('sha256'):
+        if is_windows_asset(asset['name']):
+            assets_windows.append(asset)
+        else:
+            assets_unix.append(asset)
+
 # Release date
 if args.use_github_date:
     release_date = dateutil.parser.isoparse(release['published_at'])
@@ -201,12 +221,13 @@ notice("using temporary directory: " + tmpdir)
 
 ################################################################################
 # Download and extract the release asset named 'gap-4.X.Y.tar.gz'
+# TODO perhaps don't hardcode this name?
 tarball = 'gap-' + gap_version + '.tar.gz'
-tarball_url = [ x for x in release['assets'] if x['name'] == tarball ]
+tarball_url = [ x for x in assets_unix if x['name'] == tarball ]
 try:
     tarball_url = tarball_url[0]['browser_download_url']
 except:
-    error("cannot find " + tarball + " in release for at tag " + relrease['tag_name'])
+    error("cannot find " + tarball + " in release at tag " + relrease['tag_name'])
 
 gaproot = tmpdir + 'gap-' + gap_version + '/'
 pkg_dir = gaproot + 'pkg/'
@@ -214,27 +235,27 @@ gap_exe = gaproot + 'bin/gap.sh'
 
 # TODO error handling
 with working_directory(tmpdir):
-    notice('downloading ' + tarball_url + ' to ' + tmpdir + ' . . .')
-    download(tarball_url, tarball)
+    notice('downloading ' + tarball_url + ' (if not already downloaded) to ' + tmpdir + ' . . .')
+    download_with_sha256(tarball_url, tarball)
     notice('extracting ' + tarball + ' to ' + gaproot + ' . . .')
-    with tarfile.open(tarball) as tar:
-        tar.extractall()
-    notice('deleting ' + tarball)
-    os.remove(tarball)
-
+    #with tarfile.open(tarball) as tar:
+    #    tar.extractall()
 
 
 ################################################################################
 # Compile newly-download GAP so that we can use its executable
 # TODO error handling
 with working_directory(gaproot):
-    notice("compiling newly downloaded GAP to use it for extracting package data")
-    notice("running configure . . .")
-    with open("../configure.log", "w") as fp:
-        subprocess.run(["./configure"], check=True, stdout=fp)
-    notice("building GAP . . .")
-    with open("../make.log", "w") as fp:
-        subprocess.run(["make"], check=True, stdout=fp)
+    if os.path.isfile('bin/gap.sh'):
+        notice("GAP is already compiled, not recompiling")
+    else:
+        notice("compiling newly downloaded GAP to use it for extracting package data")
+        notice("running configure . . .")
+        with open("../configure.log", "w") as fp:
+            subprocess.run(["./configure"], check=True, stdout=fp)
+        notice("building GAP . . .")
+        with open("../make.log", "w") as fp:
+            subprocess.run(["make"], check=True, stdout=fp)
 
 notice("Using GAP root: " + gaproot)
 notice("Using GAP executable: " + gap_exe)
@@ -298,6 +319,19 @@ subprocess.run(["etc/release_helper.sh", gaproot, release_file], check=True)
 # a template to GapWWW using it; this way, we don't need to duplicate specific
 # HTML code here. But that can happen at a later point in the futre
 # Wilf Wilson: Agreed.
+def write_asset_table_row(out, asset):
+    request = requests.get(asset['browser_download_url'] + '.sha256')
+    try:
+        request.raise_for_status()
+    except:
+        error('failed to download ' + asset['browser_download_url'] + '.sha256')
+    sha256 = request.text.strip()
+    out.write('\n<tr>\n')
+    out.write('  <td align="left"><a href="' + asset['browser_download_url'] + '">' + asset['name'] + '</a></td>\n')
+    out.write('  <td align="left">' + mb_bytes(asset['size']) + ' MB</td>\n')
+    out.write('  <td align="left">sha256: ' + sha256 + '</td>\n')
+    out.write('</tr>')
+
 with open(release_file, 'a') as new_file:
     new_file.write("""
 ---
@@ -320,15 +354,8 @@ Expert users can find the description of all installation options in the
   <col width="20%">
   <col width="50%">
  </colgroup>""")
-    for asset in release['assets']:
-        if asset['name'].startswith('gap-' + gap_version + '.'):
-            new_file.write('\n<tr>\n')
-            new_file.write('  <td align="left"><a href="' + asset['browser_download_url'] + '">' + asset['name'] + '</a></td>\n')
-            new_file.write('  <td align="left">' + mb_bytes(asset['size']) + ' MB</td>\n')
-            # TODO download the asset and compute the sha256 checksum and put it
-            # in the following cell, in the format "sha256: <checksum>"
-            new_file.write('  <td align="left"></td>\n')
-            new_file.write('</tr>')
+    for asset in assets_unix:
+        write_asset_table_row(new_file, asset)
     new_file.write("""
 </table>
 
@@ -352,14 +379,10 @@ the core GAP system (the source code,
 # TODO say somoething about how Windows is coming...
 
 
-subprocess.run(["git", "add", "_data/release.yml"], check=True)
-subprocess.run(["git", "add", "_Packages/*.html"], check=True)
-subprocess.run(["git", "add", "_data/help.yml"], check=True)
-subprocess.run(["git", "add", release_file], check=True)
-
-
 ################################################################################
 # Commit, push, and create pull request to github.com/gap-system/GapWWW
+
+subprocess.run(["git", "add", "_data/release.yml", "_Packages/*.html", "_data/help.yml", release_file], check=True)
 
 # TODO if git is clean, then the website is aleady up to date, so we should
 # exit gracefully
