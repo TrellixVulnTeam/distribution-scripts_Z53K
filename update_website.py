@@ -68,8 +68,8 @@ epilog=
 # TODO implement some or all of these
 #parser.add_argument('-p', '--push', action='store_true',
 #                    help='also perform the final push, completing the release')
-#parser.add_argument('-f', '--force', action='store_true',
-#                    help='if a release with the same name already exists: overwrite it')
+parser.add_argument('-f', '--force', action='store_true',
+                    help='force push to --push-remeote/--branch')
 
 group = parser.add_argument_group('GAP release details')
 
@@ -407,7 +407,13 @@ except:
     error("")
 
 try:
-    subprocess.run(["git", "push", args.push_remote, branch], check=True)
+    # TODO push with token!
+    #REMOTE="https://$GITHUB_USER:$TOKEN@github.com/$REPO"
+    if args.force:
+        command = ["git", "push", "-f", args.push_remote, branch]
+    else:
+        command = ["git", "push", args.push_remote, branch]
+    subprocess.run(command, check=True)
 except:
     error("failed to push " + branch + " to " + args.push_remote)
 
