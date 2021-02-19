@@ -85,13 +85,13 @@ group.add_argument('--tmpdir', type=str,
 
 group = parser.add_argument_group('Repository details and access')
 
-group.add_argument('--token', type=str, # TODO implement
+group.add_argument('--token', type=str,
                    help='GitHub access token')
 group.add_argument('--branch', type=str,
                    help='branch in which to make the changes (default: gap-4.X.Y)')
 group.add_argument('--push-remote', type=str, default="origin",
                    help='git remote to which --branch is pushed (default: origin)')
-group.add_argument('--pr-remote', type=str, default="origin",
+group.add_argument('--pr-remote', type=str, default="origin", # TODO
                    help='git remote to which a PR is made (default: origin)')
 
 args = parser.parse_args()
@@ -99,9 +99,7 @@ args = parser.parse_args()
 
 ################################################################################
 # Verify that commands are available
-#verify_command_available("gh")
 verify_command_available("git")
-verify_command_available("tar")
 # Verify that the pwd is a clean git repo
 verify_git_repo()
 verify_git_clean()
@@ -111,7 +109,7 @@ verify_git_clean()
 # Validate the arguments
 
 if args.tag != None and not is_possible_gap4_release_tag(args.tag):
-    error('unrecognised GAP release tag: ' + args.tag)
+    error('unrecognised format for GAP release tag: ' + args.tag)
 
 if args.use_github_date and args.date:
     error('--use-github-date and --date/-d were both specified; use at most one')
@@ -146,10 +144,8 @@ else:
         token = os.environ['GITHUB_TOKEN']
     elif 'TOKEN' in os.environ:
         token = os.environ['TOKEN']
-
 if token == None or token == '':
     error("could not determine GitHub access token, please use --token")
-
 initialize_github(token)
 
 
@@ -301,9 +297,10 @@ with open(release_file, 'w') as new_file:
 notice("running etc/new.sh")
 subprocess.run(["etc/new.sh", gaproot, release_file], check=True)
 
-# TODO: probably better to only produce a YAML file below, and then add
+# TODO Max Horn: probably better to only produce a YAML file below, and then add
 # a template to GapWWW using it; this way, we don't need to duplicate specific
 # HTML code here. But that can happen at a later point in the futre
+# Wilf Wilson: Agreed.
 with open(release_file, 'a') as new_file:
     new_file.write("""
 ---
