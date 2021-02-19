@@ -184,7 +184,7 @@ notice("using temporary directory: " + tmpdir)
 
 
 ################################################################################
-# Download and extrract the release asset named 'gap-4.X.Y.tar.gz'
+# Download and extract the release asset named 'gap-4.X.Y.tar.gz'
 tarball = 'gap-' + gap_version + '.tar.gz'
 tarball_url = [ x for x in release['assets'] if x['name'] == tarball ]
 try:
@@ -286,6 +286,9 @@ with open(release_file, 'w') as new_file:
 notice("running etc/new.sh")
 subprocess.run(["etc/new.sh", gaproot, release_file], check=True)
 
+# TODO: probably better to only produce a YAML file below, and then add
+# a template to GapWWW using it; this way, we don't need to duplicate specific
+# HTML code here. But that can happen at a later point in the futre
 with open(release_file, 'a') as new_file:
     new_file.write("""
 ---
