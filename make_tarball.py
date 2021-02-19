@@ -144,7 +144,7 @@ with working_directory(tmpdir + "/" + basename):
 # create the archives
 # If you create additional archives, make sure to add them to archives_to_create!
 archives_to_create = []
-for filename in [all_packages, basename, basename + "-core"]:
+for filename in [all_packages, req_packages, basename, basename + "-core"]:
     archives_to_create.append(filename + ".tar.gz")
     archives_to_create.append(filename + ".tar.gz.sha256")
     archives_to_create.append(filename + ".zip")
