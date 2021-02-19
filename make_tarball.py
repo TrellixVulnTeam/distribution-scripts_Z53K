@@ -43,7 +43,7 @@ except:
     error("make sure GAP has been compiled via './configure && make'")
 notice(f"Detected GAP version {gapversion}")
 
-if gapversion.find("dev") = -1:
+if gapversion.find("dev") == -1:
     notice(f"THIS LOOKS LIKE A RELEASE.")
 else:
     notice(f"THIS LOOKS LIKE A NIGHTLY BUILD.")
