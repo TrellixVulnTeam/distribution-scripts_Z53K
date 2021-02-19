@@ -21,7 +21,6 @@ The following command line tools are needed, please install them using your favo
 - `git`
 - `make`
 - `autoconf`
-- `tar` <!-- not needed for tarfile -->
 
 ## Release Process -- The quick guide
 
@@ -70,5 +69,8 @@ Otherwise a flag containing the token is needed when running `make_github_releas
 5. Change to the gap-system/GapWWW (repository) directory  
    This should be obvious why
 6. Run `update_website.py` 
-   - Makes some Wilf Magic 
+   - Fetches the release assets, extracts and configures/builds GAP in a tmp directory
+   - Extracts info from the built and rewrites various YAML files
+   - Extracts info about packages and updates YAML files
+   - Commits, pushes and creates pull request to GapWWW
 7. [optional] Remove the `tmp` directories (in GapWWW and gap directories)
