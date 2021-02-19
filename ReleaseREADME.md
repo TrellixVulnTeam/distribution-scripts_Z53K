@@ -10,7 +10,7 @@
 Before starting the release process, the scripts have the following dependencies. Make sure you have the following installed and up to date
 - Python (version >=3.6) which can be installed using your favourite package manager or from [Python.org](https://www.python.org)
 ### Python Modules
-The following (non-standard) python modules need to be installed, you can do this using `pip` (`pip install <MODULENAME>`)
+The following (non-standard) python modules need to be installed, you can do this using `pip3` (`pip3 install <MODULENAME>`)
 - `PyGithub`
 - `requests`
 - `python-dateutil`
