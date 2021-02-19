@@ -329,8 +329,9 @@ subprocess.run(["etc/release_helper.sh", gaproot, release_file], check=True)
 # TODO Max Horn: probably better to only produce a YAML file below, and then add
 # a template to GapWWW using it; this way, we don't need to duplicate specific
 # HTML code here. But that can happen at a later point in the futre
-# Wilf Wilson: Agreed.
+# Wilf Wilson: Agreed 100%.
 def write_asset_table_row(out, asset):
+    # TODO use already-downloaded sha256 file that is in the tmpdir
     request = requests.get(asset['browser_download_url'] + '.sha256')
     try:
         request.raise_for_status()
