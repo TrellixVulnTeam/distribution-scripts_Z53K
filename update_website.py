@@ -294,8 +294,8 @@ with open(release_file, 'w') as new_file:
     new_file.write("packages:")
 
 # Insert brief YAML data describing each package included in this GAP release
-notice("running etc/new.sh")
-subprocess.run(["etc/new.sh", gaproot, release_file], check=True)
+notice("running etc/release_helper.sh")
+subprocess.run(["etc/release_helper.sh", gaproot, release_file], check=True)
 
 # TODO Max Horn: probably better to only produce a YAML file below, and then add
 # a template to GapWWW using it; this way, we don't need to duplicate specific
