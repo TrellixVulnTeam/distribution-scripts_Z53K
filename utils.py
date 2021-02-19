@@ -8,7 +8,7 @@ import sys
 from getpass import getpass
 import github
 
-CURRENT_REPO_NAME = "fingolfin/distribution-scripts"
+CURRENT_REPO_NAME = "ssiccha/gap"
 # Initialized by initialize_github
 GITHUB_INSTANCE = None
 CURRENT_REPO = None
@@ -164,4 +164,5 @@ def initialize_github(token=None):
     except github.GithubException:
         error("Error: the access token may be incorrect")
     GITHUB_INSTANCE = g
+    notice(f"Accessing repository {CURRENT_REPO_NAME}")
     CURRENT_REPO = GITHUB_INSTANCE.get_repo(CURRENT_REPO_NAME)
