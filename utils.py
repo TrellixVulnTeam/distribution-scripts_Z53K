@@ -104,7 +104,7 @@ def download_with_sha256(url, dst):
         download(url, dst)
     actual_checksum = sha256file(dst)
     if expected_checksum != actual_checksum:
-        error("checksum for 'dst' expected to be {expected_checksum} but got {actual_checksum}")
+        error(f"checksum for 'dst' expected to be {expected_checksum} but got {actual_checksum}")
 
 def run_with_log(args, name, msg = None):
     if msg == None:
