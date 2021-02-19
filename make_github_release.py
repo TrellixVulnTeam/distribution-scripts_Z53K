@@ -24,7 +24,7 @@ utils.notice(f"Detected GAP version {GAPVERSION}")
 utils.initialize_github()
 
 # Error if this release has been already created on GitHub
-if utils.check_whether_github_release_exists(GAPVERSION):
+if utils.check_whether_github_release_exists("v"+GAPVERSION):
     utils.error(f"Release {GAPVERSION} already exists!")
 
 # Create release
