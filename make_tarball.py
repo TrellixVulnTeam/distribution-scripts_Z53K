@@ -73,8 +73,6 @@ else:
     notice(f"Using no tag, this is a snapshot release.")
 
 # Make sure tag is annotated and not lightweight.
-# lightweight vs annotated
-# https://stackoverflow.com/questions/40479712/how-can-i-tell-if-a-given-git-tag-is-annotated-or-lightweight#40499437
 if tag != None:
     if not is_annotated_git_tag(tag):
         error(tag + " must be an annotated tag and not lightweight")
