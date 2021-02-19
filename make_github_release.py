@@ -3,6 +3,9 @@
 # This script is intended to implement step 6 of
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
 # it makes a github relase and uploads all tar balls as assets.
+#
+# The version of the gap release to be created can be provided as argument to
+# this script and is handled as in make_tarball.py.
 
 import sys, subprocess
 # If we do import * from utils, then initialize_github can't overwrite the
