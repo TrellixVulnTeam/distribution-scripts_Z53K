@@ -99,6 +99,8 @@ group.add_argument('--push-remote', type=str, default="origin",
                    help='git remote to which --branch is pushed (default: origin)')
 group.add_argument('--pr-remote', type=str, default="origin", # TODO
                    help='git remote to which a PR is made (default: origin)')
+group.add_argument('--gap-fork', type=str, default="gap-system",
+                   help='GitHub GAP fork to search for releases (default: gap-system)')
 
 args = parser.parse_args()
 
@@ -158,9 +160,9 @@ initialize_github(token)
 
 
 ################################################################################
-# Use the GitHub API to find the release on github.com/gap-system/gap
+# Use the GitHub API to find the GAP release on GitHub
 # TODO do this via the python GitHub module
-github_releases_url = 'https://api.github.com/repos/gap-system/gap/releases'
+github_releases_url = 'https://api.github.com/repos/' + args.gap_fork + '/gap/releases'
 request = requests.get(github_releases_url)
 try:
     request.raise_for_status()
