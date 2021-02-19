@@ -3,6 +3,8 @@
 # This script is intended to implement step 6 of
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
 # it makes a github release and uploads all tar balls as assets.
+# The target repository is hardcoded in utils.py:
+#   CURRENT_REPO_NAME
 #
 # As in make_tarball.py, the version of the gap release is taken from the
 # Makefile variable GAP_BUILD_VERSION.
