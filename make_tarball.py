@@ -3,11 +3,6 @@
 # This script is intended to implement step 4 of
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
 # create the archives that form the gap release.
-#
-# The version of the gap release to be created is taken to be the tag of the
-# current commit or can be provided as argument to this script. If the current
-# commit has no tag and no tag is provided as argument, then we create a
-# "snapshot" release.
 
 from utils import *
 
@@ -21,9 +16,6 @@ import zipfile
 # Insist on Python >= 3.6 for f-strings and other goodies
 if sys.version_info < (3,6):
     error("Python 3.6 or newer is required")
-
-if len(sys.argv) > 2:
-    error("usage: "+sys.argv[0]+" [<tag>]")
 
 notice("Checking prerequisites")
 verify_command_available("curl")
