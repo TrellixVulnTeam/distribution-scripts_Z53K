@@ -9,6 +9,7 @@ from utils import *
 import shutil
 import subprocess
 import sys
+import tarfile
 
 # Insist on Python >= 3.6 for f-strings and other goodies
 if sys.version_info < (3,6):
@@ -167,7 +168,7 @@ with working_directory(tmpdir):
         file.write(sha256file(filename))
 
     notice("Extract required packages")
-    with tarfile.open("../"+req_packages_tarball) as tar:
+    with tarfile.open(req_packages_tarball) as tar:
         tar.extractall(path=req_packages)
 
     filename = req_packages + '.zip'
