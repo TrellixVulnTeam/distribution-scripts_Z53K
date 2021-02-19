@@ -250,7 +250,6 @@ with open('_data/release.yml', 'w') as release_yml:
     release_yml.write("version: '" + gap_version + "'\n")
     release_yml.write("date: '" + date + "'\n")
     release_yml.write("year: '" + year + "'\n")
-subprocess.run(["git", "add", "_data/release.yml"], check=True)
 
 
 # This is currently unnecessary for new releases since we're only linking to
@@ -272,14 +271,12 @@ subprocess.run(["git", "add", "_data/release.yml"], check=True)
 
 notice("running etc/rebuild_Packages_dir.sh")
 subprocess.run(["etc/rebuild_Packages_dir.sh", pkg_dir, gap_exe], check=True)
-subprocess.run(["git", "add", "_Packages/*.html"], check=True)
 
 
 ################################################################################
 # Rewrite _data/help.yml
 notice("running GAP on etc/LinksOfAllHelpSections.g")
 subprocess.run([gap_exe, "-A", "-r", "-q", "--nointeract", "--norepl", "etc/LinksOfAllHelpSections.g"], check=True)
-subprocess.run(["git", "add", "_data/help.yml"], check=True)
 
 
 ################################################################################
@@ -353,6 +350,11 @@ the core GAP system (the source code,
 </p>
 """)
 # TODO say somoething about how Windows is coming...
+
+
+subprocess.run(["git", "add", "_data/release.yml"], check=True)
+subprocess.run(["git", "add", "_Packages/*.html"], check=True)
+subprocess.run(["git", "add", "_data/help.yml"], check=True)
 subprocess.run(["git", "add", release_file], check=True)
 
 
