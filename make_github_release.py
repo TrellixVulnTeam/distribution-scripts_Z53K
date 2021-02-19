@@ -27,6 +27,7 @@ if utils.check_whether_github_release_exists(GAPVERSION):
 
 CURRENT_BRANCH = utils.get_makefile_var("PKG_BRANCH")
 RELEASE_NOTE = f"For an overview of changes in GAP {GAPVERSION} see CHANGES.md file."
+utils.notice(f"Creating release v{GAPVERSION}")
 RELEASE = utils.CURRENT_REPO.create_git_release("v"+GAPVERSION, "v"+GAPVERSION,
                                                 RELEASE_NOTE,
                                                 target_commitish=CURRENT_BRANCH,
