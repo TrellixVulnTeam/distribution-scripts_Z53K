@@ -138,12 +138,18 @@ with working_directory(tmpdir + "/" + basename):
 
     notice("running configure")
     with open("../configure.log", "w") as fp:
-        subprocess.run(["./configure"], check=True, stdout=fp)
+        try:
+            subprocess.run(["./configure"], check=True, stdout=subprocess.PIPE, stderr=fp)
+        except CalledProcessError:
+            error("./configure failed. See configure.log.")
 
     notice("building GAP")
     with open("../make.log", "w") as fp:
-        #subprocess.run(["make", "-j8"], check=True, stdout=fp) # FIXME: currently broken on gap master, fix already submitted
-        subprocess.run(["make"], check=True, stdout=fp)
+        try:
+            #subprocess.run(["make", "-j8"], check=True, stdout=subprocess.PIPE, stderr=fp) # FIXME: currently broken on gap master, fix already submitted
+            subprocess.run(["make"], check=True, stdout=subprocess.PIPE, stderr=fp)
+        except CalledProcessError:
+            error("make failed. See make.log.")
 
     # extract some values from the build system
     branchname = get_makefile_var("PKG_BRANCH")
@@ -165,10 +171,17 @@ with working_directory(tmpdir + "/" + basename):
 
     notice("building the manuals")
     with open("../gapdoc.log", "w") as fp:
-        subprocess.run(["make", "doc"], check=True, stdout=fp)
+        try:
+            subprocess.run(["make", "doc"], check=True, stdout=subprocess.PIPE, stderr=fp)
+        except CalledProcessError:
+            error("building the manuals failed. See gapdoc.log.")
 
     notice("remove generated files we don't want for distribution")
-    subprocess.run(["make", "distclean"], check=True, capture_output=True)
+    with open("../make.log", "a") as fp:
+        try:
+            subprocess.run(["make", "distclean"], check=True, stdout=subprocess.PIPE, stderr=fp)
+        except CalledProcessError:
+            error("make distclean failed. See make.log.")
 
 
 # create the archives
