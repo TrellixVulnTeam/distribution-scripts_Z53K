@@ -2,7 +2,7 @@
 
 # This script is intended to implement step 6 of
 # <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
-# it makes a github relase and uploads all tar balls as assets.
+# it makes a github release and uploads all tar balls as assets.
 #
 # As in make_tarball.py, the version of the gap release is taken from the
 # Makefile variable GAP_BUILD_VERSION.
@@ -13,6 +13,7 @@ import utils
 import github
 import os
 
+# Identify GAP release version
 try:
     GAPVERSION = utils.get_makefile_var("GAP_BUILD_VERSION")
 except:
@@ -22,9 +23,11 @@ utils.notice(f"Detected GAP version {GAPVERSION}")
 
 utils.initialize_github()
 
+# Error if this release has been already created on GitHub
 if utils.check_whether_github_release_exists(GAPVERSION):
     utils.error(f"Release {GAPVERSION} already exists!")
 
+# Create release
 CURRENT_BRANCH = utils.get_makefile_var("PKG_BRANCH")
 RELEASE_NOTE = f"For an overview of changes in GAP {GAPVERSION} see CHANGES.md file."
 utils.notice(f"Creating release v{GAPVERSION}")
