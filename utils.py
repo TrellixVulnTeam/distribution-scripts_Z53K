@@ -147,25 +147,6 @@ def is_annotated_git_tag(tag):
         return False
     error(f"could not check whether tag {tag} is annotated")
 
-
-# for an explanation, see make_tarball.py
-def get_tag():
-    tags = subprocess.run(["git", "tag", "--points-at"],
-                         check=True, capture_output=True, text=True)
-    tags = tags.stdout.strip().split('\n')
-    tags = [ tag for tag in tags if is_annotated_git_tag(tag) ]
-    if len(sys.argv) == 2:
-        provided_tag = sys.argv[1]
-        if not provided_tag in tags:
-            error(f"tag '{provided_tag}' does not point to the current commit or is not annotated")
-        return provided_tag
-    elif len(tags) > 1:
-        error("Current commit has more than one annotated tag. Provide a tag as argument")
-    elif len(tags) == 1 and len(tags[0]) > 0:
-        return tags[0]
-    else:
-        return None
-
 # Returns a boolean
 def check_whether_github_release_exists(tag):
     if CURRENT_REPO == None:
