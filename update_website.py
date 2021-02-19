@@ -67,7 +67,7 @@ epilog=
 # TODO let the user supply a gaproot containing the downloaded and unpacked GAP archive?
 # TODO implement some or all of these
 #parser.add_argument('-p', '--push', action='store_true',
-#                    help='also peform the final push, completing the release')
+#                    help='also perform the final push, completing the release')
 #parser.add_argument('-f', '--force', action='store_true',
 #                    help='if a release with the same name already exists: overwrite it')
 
@@ -175,7 +175,7 @@ if args.tag == None:
 else:
     release = [ x for x in releases if x['tag_name'] == args.tag ]
     if len(release) != 1:
-        error("non-existent or amnbiguous release tag name: " + args.tag)
+        error("non-existent or ambiguous release tag name: " + args.tag)
     release = release[0]
 
 # Divide the assets betwen Windows and UNIX assets
@@ -376,7 +376,7 @@ the core GAP system (the source code,
 <a href="../Packages/packages.html">packages</a>:
 </p>
 """)
-# TODO say somoething about how Windows is coming...
+# TODO say something about how Windows is coming...
 
 
 ################################################################################
@@ -384,7 +384,7 @@ the core GAP system (the source code,
 
 subprocess.run(["git", "add", "_data/release.yml", "_Packages/*.html", "_data/help.yml", release_file], check=True)
 
-# TODO if git is clean, then the website is aleady up to date, so we should
+# TODO if git is clean, then the website is already up to date, so we should
 # exit gracefully
 
 try:
@@ -405,8 +405,9 @@ except:
 notice("TODO: create pull request")
 
 # TODO Delete the temporary gap directory and log files, when we are finished with it
+# The above todo is not needed, users are warned in ReleaseREADME that tmp folders were created and need to be removed manually if required.
 # TODO Download all package tarballs, and compute their sizes and sha256 checksums
-# TODO stfp tarballs from GitHub release system to gap-system.org
+# TODO sftp tarballs from GitHub release system to gap-system.org
 # TODO sftp package manuals
 #
 # also commit and/or upload the GAP and GAP package manuals somewhere (HTML and PDF could go into different places)
