@@ -256,6 +256,8 @@ with working_directory(tmpdir):
 # TODO error handling
 with working_directory(gaproot):
     if os.path.isfile('bin/gap.sh'):
+        # TODO The tarball is currently always extracted, overwriting any old one,
+        # so GAP will never be already compiled by this point
         notice("GAP is already compiled, not recompiling")
     else:
         notice("compiling newly downloaded GAP to use it for extracting package data")
