@@ -275,11 +275,6 @@ subprocess.run(["git", "add", "_data/release.yml"], check=True)
 ################################################################################
 # Update/rewrite the YAML data files in _Package for each package in pkg_dir
 
-# First remove all old YAML data files in _Package TODO is this a good idea?
-#subprocess.run(["git", "rm", "_Packages/*.html"], check=True)
-#if not os.path.isdir('_Packages'):
-#    # git rm _Packages/*.html may have removed the _Packages directory
-#    os.mkdir('_Packages')
 notice("running etc/rebuild_Packages_dir.sh")
 subprocess.run(["etc/rebuild_Packages_dir.sh", pkg_dir, gap_exe], check=True)
 subprocess.run(["git", "add", "_Packages/*.html"], check=True)
