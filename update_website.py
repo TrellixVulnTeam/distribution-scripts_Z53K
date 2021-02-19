@@ -60,6 +60,7 @@ epilog=
 
 # TODO allow user to specify which branch to make the changes on?
 # TODO Let the user choose between pushing directly and making a PR?
+# TODO let the user supply a gaproot containing the downloaded and unpacked GAP archive?
 # TODO implement some or all of these
 #parser.add_argument('-p', '--push', action='store_true',
 #                    help='also peform the final push, completing the release')
@@ -80,7 +81,7 @@ group = parser.add_argument_group('Paths')
 group.add_argument('--tmpdir', type=str,
                    help='path to the directory in which to download and extract the GAP release (default: a new temporary directory)')
 #group.add_argument('--gap', type=str,
-#                   help='path to a GAP executable (default: use the GAP release)')
+#                   help='skip downloading an archive and use the GAP located at...')
 
 group = parser.add_argument_group('Repository details and access')
 
@@ -94,6 +95,16 @@ group.add_argument('--pr-remote', type=str, default="origin",
                    help='git remote to which a PR is made (default: origin)')
 
 args = parser.parse_args()
+
+
+################################################################################
+# Verify that commands are available
+#verify_command_available("gh")
+verify_command_available("git")
+verify_command_available("tar")
+# Verify that the pwd is a clean git repo
+verify_git_repo()
+verify_git_clean()
 
 
 ################################################################################
@@ -123,19 +134,29 @@ if args.tmpdir != None:
 else:
     tmpdir = tempfile.gettempdir()
 
+if args.token:
+    token = args.token
+else:
+    temp = subprocess.run(["git", "config", "--get", "github.token"], text=True, capture_output=True)
+    if temp.returncode == 0:
+        token = temp.stdout.strip()
+    elif os.path.isfile(os.path.expanduser('~') + '/.github_shell_token'):
+        with open(os.path.expanduser('~') + '/.github_shell_token', 'r') as token_file:
+            token = token_file.read().replace('\n', '')
+    elif 'GITHUB_TOKEN' in os.environ:
+        token = os.environ['GITHUB_TOKEN']
+    elif 'TOKEN' in os.environ:
+        token = os.environ['TOKEN']
 
-################################################################################
-# Verify that commands are available
-verify_command_available("gh")
-verify_command_available("git")
-verify_command_available("tar")
-# Verify that the pwd is a clean git repo
-verify_git_repo()
-verify_git_clean()
+if token == None or token == '':
+    error("could not determine GitHub access token, please use --token")
+
+initialize_github(token)
 
 
 ################################################################################
 # Use the GitHub API to find the release on github.com/gap-system/gap
+# TODO do this via the python GitHub module
 github_releases_url = 'https://api.github.com/repos/gap-system/gap/releases'
 request = requests.get(github_releases_url)
 try:
@@ -322,8 +343,8 @@ Expert users can find the description of all installation options in the
             new_file.write('</tr>')
     new_file.write("""
 </table>
-<p>
 
+<p>
 You may also consider one of the
 <a href="../Download/alternatives.html">alternative distributions</a>.
 Note, however, that these are updated independently and may not yet
@@ -340,6 +361,7 @@ the core GAP system (the source code,
 <a href="../Packages/packages.html">packages</a>:
 </p>
 """)
+# TODO say somoething about how Windows is coming...
 subprocess.run(["git", "add", release_file], check=True)
 
 
