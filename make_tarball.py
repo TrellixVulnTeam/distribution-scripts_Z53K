@@ -57,8 +57,10 @@ commit_year = commit_date[0:4]
 
 # derive tarball names
 basename = f"gap-{gapversion}"
-all_packages_tarball = f"packages-v{gapversion}.tar.gz" # only the pkg dir
-req_packages_tarball = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
+all_packages = f"packages-v{gapversion}" # only the pkg dir
+all_packages_tarball = f"{all_packages}.tar.gz"
+req_packages = f"packages-required-v{gapversion}.tar.gz" # a subset of the above
+req_packages_tarball = f"{req_packages}.tar.gz"
 
 
 notice("Exporting repository content via `git archive`")
@@ -141,11 +143,20 @@ with working_directory(tmpdir + "/" + basename):
 
 # create the archives
 # If you create additional archives, make sure to add them to archives_to_create!
+# TODO
 archives_to_create = [
+    all_packages_tarball,
+    f"{all_packages_tarball}.sha256"
+    req_packages_tarball,
+    f"{req_packages_tarball}.sha256"
     f"{basename}.tar.gz",
+    f"{basename}.tar.gz.sha256",
     f"{basename}.zip",
+    f"{basename}.zip.sha256",
     f"{basename}-core.tar.gz",
+    f"{basename}-core.tar.gz.sha256",
     f"{basename}-core.zip"
+    f"{basename}-core.zip.sha256"
 ]
 with working_directory(tmpdir):
     filename = f"{basename}.tar.gz"
@@ -157,6 +168,12 @@ with working_directory(tmpdir):
     filename = f"{basename}.zip"
     notice(f"Creating {filename}")
     shutil.make_archive(basename, 'zip', ".", basename)
+    with open(filename+".sha256", 'w') as file:
+        file.write(sha256file(filename))
+
+    filename = all_packages + '.zip'
+    notice(f"Creating {filename}")
+    shutil.make_archive(basename + "/pkg", 'zip', ".", "pkg")
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
