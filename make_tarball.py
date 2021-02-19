@@ -143,21 +143,13 @@ with working_directory(tmpdir + "/" + basename):
 
 # create the archives
 # If you create additional archives, make sure to add them to archives_to_create!
-# TODO
-archives_to_create = [
-    all_packages_tarball,
-    f"{all_packages_tarball}.sha256"
-    req_packages_tarball,
-    f"{req_packages_tarball}.sha256"
-    f"{basename}.tar.gz",
-    f"{basename}.tar.gz.sha256",
-    f"{basename}.zip",
-    f"{basename}.zip.sha256",
-    f"{basename}-core.tar.gz",
-    f"{basename}-core.tar.gz.sha256",
-    f"{basename}-core.zip"
-    f"{basename}-core.zip.sha256"
-]
+archives_to_create = []
+for filename in [all_packages, basename, basename + "-core"]:
+    archives_to_create.append(filename + ".tar.gz")
+    archives_to_create.append(filename + ".tar.gz.sha256")
+    archives_to_create.append(filename + ".zip")
+    archives_to_create.append(filename + ".zip.sha256")
+
 with working_directory(tmpdir):
     filename = f"{basename}.tar.gz"
     notice(f"Creating {filename}")
