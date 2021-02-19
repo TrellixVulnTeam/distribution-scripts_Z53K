@@ -117,7 +117,7 @@ badfiles = [
 ]
 
 with working_directory(tmpdir + "/" + basename):
-    notice("removing unwanted files")
+    notice("Removing unwanted files")
     shutil.rmtree("benchmark")
     shutil.rmtree("dev")
     shutil.rmtree(".github")
@@ -129,18 +129,18 @@ with working_directory(tmpdir + "/" + basename):
 
     # This sets the version, release day and year of the release we are
     # creating.
-    notice("patch configure.ac")
+    notice("Patch configure.ac")
     patchfile("configure.ac", r"m4_define\(\[gap_version\],[^\n]+", r"m4_define([gap_version], ["+gapversion+"])")
     patchfile("configure.ac", r"m4_define\(\[gap_releaseday\],[^\n]+", r"m4_define([gap_releaseday], ["+commit_date+"])")
     patchfile("configure.ac", r"m4_define\(\[gap_releaseyear\],[^\n]+", r"m4_define([gap_releaseyear], ["+commit_year+"])")
 
-    notice("running autogen.sh")
+    notice("Running autogen.sh")
     subprocess.run(["./autogen.sh"], check=True)
 
-    notice("running configure")
+    notice("Running configure")
     run_with_log(["./configure"], "configure")
 
-    notice("building GAP")
+    notice("Building GAP")
     run_with_log(["make", "-j8"], "make")
 
     # extract some values from the build system
@@ -153,46 +153,46 @@ with working_directory(tmpdir + "/" + basename):
     notice(f"PKG_MINIMAL = {PKG_MINIMAL}")
     notice(f"PKG_FULL = {PKG_FULL}")
 
-    notice("downloading package tarballs")   # ... outside of the directory we just created
+    notice("Downloading package tarballs")   # ... outside of the directory we just created
     download_with_sha256(PKG_BOOTSTRAP_URL+PKG_MINIMAL, "../"+req_packages_tarball)
     download_with_sha256(PKG_BOOTSTRAP_URL+PKG_FULL, "../"+all_packages_tarball)
 
-    notice("extract the packages")
+    notice("Extract the packages")
     with tarfile.open("../"+all_packages_tarball) as tar:
         tar.extractall(path="pkg")
 
-    notice("building the manuals")
+    notice("Building the manuals")
     run_with_log(["make", "doc"], "gapdoc", "building the manuals")
 
-    notice("remove generated files we don't want for distribution")
+    notice("Remove generated files we don't want for distribution")
     run_with_log(["make", "distclean"], "make-distclean", "make distclean")
 
 
 # create the archives
 with working_directory(tmpdir):
     filename = f"{basename}.tar.gz"
-    notice(f"creating {filename}")
+    notice(f"Creating {filename}")
     shutil.make_archive(basename, 'gztar', ".", basename)
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
     filename = f"{basename}.zip"
-    notice(f"creating {filename}")
+    notice(f"Creating {filename}")
     shutil.make_archive(basename, 'zip', ".", basename)
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
-    notice("remove packages")
+    notice("Remove packages")
     shutil.rmtree(basename + "/pkg")
 
     filename = f"{basename}-core.tar.gz"
-    notice(f"creating {filename}")
+    notice(f"Creating {filename}")
     shutil.make_archive(basename+"-core", 'gztar', ".", basename)
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
 
     filename = f"{basename}-core.zip"
-    notice(f"creating {filename}")
+    notice(f"Creating {filename}")
     shutil.make_archive(basename+"-core", 'zip', ".", basename)
     with open(filename+".sha256", 'w') as file:
         file.write(sha256file(filename))
