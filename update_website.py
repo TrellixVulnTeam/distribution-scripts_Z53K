@@ -171,7 +171,11 @@ releases = [ x for x in releases if is_possible_gap4_release_tag(x['tag_name']) 
 if len(releases) == 0:
     error("no GAP v4.X.Y releases found on GitHub!")
 if args.tag == None:
-    release = releases[0]
+    # Using latest release; therefore ignore drafts and prerelease
+    release = [ x for x in releases if not x['draft'] and not x['prerelease']]
+    if not release:
+        error("cannot determine the latest (non-draft, non-prerelease) release")
+    release = release[0]
 else:
     release = [ x for x in releases if x['tag_name'] == args.tag ]
     if len(release) != 1:
