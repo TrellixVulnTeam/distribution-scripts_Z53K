@@ -106,6 +106,15 @@ def download_with_sha256(url, dst):
     if expected_checksum != actual_checksum:
         error("checksum for 'dst' expected to be {expected_checksum} but got {actual_checksum}")
 
+def run_with_log(args, name, msg = None):
+    if msg == None:
+        msg = name
+    with open("../"+name+".log", "w") as fp:
+        try:
+            subprocess.run(args, check=True, stdout=subprocess.PIPE, stderr=fp)
+        except subprocess.CalledProcessError:
+            error(msg+" failed. See "+name+".log.")
+
 def safe_git_fetch_tags():
     try:
         subprocess.run(["git", "fetch", "--tags"], check=True)
