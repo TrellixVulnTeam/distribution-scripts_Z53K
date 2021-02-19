@@ -55,6 +55,8 @@ notice(f"Detected GAP version {gapversion}")
 # commit, we use that tag. If more than one tag points to the current
 # commit, the user has to provide the tag as an input to the script.
 # If there is no tag, this is a nightly snapshot "release".
+# The tag is patched into the file configure.ac of the GAP release to set its
+# version.
 tags = subprocess.run(["git", "tag", "--points-at"],
                      check=True, capture_output=True, text=True)
 tags = tags.stdout.strip().split('\n')
@@ -129,6 +131,8 @@ with working_directory(tmpdir + "/" + basename):
         except:
             pass
 
+    # This sets the version, release day and year of the release we are
+    # creating.
     notice("patch configure.ac")
     patchfile("configure.ac", r"m4_define\(\[gap_version\],[^\n]+", r"m4_define([gap_version], ["+gapversion+"])")
     patchfile("configure.ac", r"m4_define\(\[gap_releaseday\],[^\n]+", r"m4_define([gap_releaseday], ["+commit_date+"])")
