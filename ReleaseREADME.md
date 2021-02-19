@@ -6,7 +6,6 @@
 - You can compile this version of GAP (some dependencies for that are listed below, more might be need)
 - You have a clone of the [GapWWW repository](https://github.com/gap-system/GapWWW)
 
-
 ## Dependencies
 Before starting the release process, the scripts have the following dependencies. Make sure you have the following installed and up to date
 - Python (version >=3.6) which can be installed using your favourite package manager or from [Python.org](https://www.python.org)
@@ -14,7 +13,7 @@ Before starting the release process, the scripts have the following dependencies
 The following (non-standard) python modules need to be installed, you can do this using `pip` (`pip install <MODULENAME>`)
 - `PyGithub`
 - `requests`
-- `GitPython`
+- `python-dateutil`
 
 ### Command line tools
 The following command line tools are needed, please install them using your favourite package manager
@@ -22,8 +21,7 @@ The following command line tools are needed, please install them using your favo
 - `git`
 - `make`
 - `autoconf`
-<!-- - `gh` -->
-- `tar`
+- `tar` <!-- not needed for tarfile -->
 
 ## Release Process -- The quick guide
 
@@ -34,13 +32,15 @@ Otherwise a flag containing the token is needed when running `make_github_releas
 1. Go into the gap-system/gap (repository) directory 
 2. Commit and tag release in git (using command line)
     ```
-    git tag -m "Version 4.X.Y" v4.X.Y
+    git tag -m "Version Z.X.Y" vZ.X.Y
     git push --tags
-    ```
+    ```  
+    Note that `Z` will most likely be 4.
 3. Run `make_tarball.py`
 4. Run `make_github_release.py`
 5. Change to the gap-system/GapWWW (repository) directory
 6. Run `update_website.py` 
+7. [optional] Remove the `tmp` directories (in GapWWW and gap directories)
 
 ## Release Process -- The more detailed guide
 
@@ -52,9 +52,10 @@ Otherwise a flag containing the token is needed when running `make_github_releas
     This should be obvious why
 2. Commit and tag release in git (using command line)  
     ```
-    git tag -m "Version 4.X.Y" v4.X.Y
+    git tag -m "Version Z.X.Y" vZ.X.Y
     git push --tags
     ```
+    Note that `Z` will most likely be 4.
 3. Run `make_tarball.py`  
     - Exports repository content into new tmp directory via `git archive`
     - Makes and configures GAP to check that it is available (and this is needed for the manuals)
@@ -69,4 +70,5 @@ Otherwise a flag containing the token is needed when running `make_github_releas
 5. Change to the gap-system/GapWWW (repository) directory  
    This should be obvious why
 6. Run `update_website.py` 
-   - Does some Wilf Magic
+   - Makes some Wilf Magic 
+7. [optional] Remove the `tmp` directories (in GapWWW and gap directories)
