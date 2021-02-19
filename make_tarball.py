@@ -38,7 +38,7 @@ tmpdir = os.getcwd() + "/tmp"
 notice(f"Files will be put in {tmpdir}")
 try:
     os.mkdir(tmpdir)
-except:
+except FileExistsError:
     pass
 
 # extract the GAP version from this directory *NOT THE SNAPSHOT DIR*
