@@ -71,10 +71,7 @@ else:
 # lightweight vs annotated
 # https://stackoverflow.com/questions/40479712/how-can-i-tell-if-a-given-git-tag-is-annotated-or-lightweight#40499437
 if tag != None:
-    is_annotated = subprocess.run(["git", "for-each-ref", "refs/tags/" + tag],
-                                  check=True, capture_output=True, text=True)
-    is_annotated = "tag" == is_annotated.stdout.split()[1]
-    if not is_annotated:
+    if not is_annotated_git_tag(tag):
         error(tag + " must be an annotated tag and not lightweight")
 
 # extract commit_date with format YYYY-MM-DD
