@@ -136,6 +136,8 @@ if args.tmpdir != None:
     tmpdir = args.tmpdir
 else:
     tmpdir = tempfile.gettempdir()
+if not tmpdir[-1] == '/':
+    tmpdir += '/'
 
 if args.token:
     token = args.token
@@ -239,11 +241,12 @@ gap_exe = gaproot + 'bin/gap.sh'
 
 # TODO error handling
 with working_directory(tmpdir):
+    # TODO only extract if I need to?
     notice('downloading ' + tarball_url + ' (if not already downloaded) to ' + tmpdir + ' . . .')
     download_with_sha256(tarball_url, tarball)
     notice('extracting ' + tarball + ' to ' + gaproot + ' . . .')
-    #with tarfile.open(tarball) as tar:
-    #    tar.extractall()
+    with tarfile.open(tarball) as tar:
+        tar.extractall()
 
 
 ################################################################################
