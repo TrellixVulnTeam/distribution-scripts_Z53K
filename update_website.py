@@ -339,7 +339,7 @@ with open(release_file, 'a') as new_file:
 <h2>Linux and OS X</h2>
 
 <p>
-Download one of the archives below, unpack it and run <code>./configure &amp;&amp; make</code>
+Download one of the <code>gap-{{page.version}}.tar.*</code> archives below, unpack it and run <code>./configure &amp;&amp; make</code>
 in the unpacked directory. Then change to the <code>pkg</code> subdirectory and call
 <code>../bin/BuildPackages.sh</code> to run the script which will build most of the
 packages that require compilation (provided sufficiently many libraries, headers and
