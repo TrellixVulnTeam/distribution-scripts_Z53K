@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 #
 # This script is intended to implement step 4 of
-# <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.:
+# <https://hackmd.io/AWds-AnZT72XXsbA0oVC6A>, i.e.
+# create the archives that form the gap release.
 #
-# 4. Create archives: run a script which takes a git ref (a sha1, a tag
-# such  "v4.11.3") as argument.
+# The version of the gap release to be created is taken to be the tag of the
+# current commit or can be provided as argument to this script. If the current
+# commit has no tag and no tag is provided as argument, then we create a
+# "snapshot" release.
 
 from utils import *
 
