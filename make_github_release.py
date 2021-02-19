@@ -11,34 +11,36 @@
 # global GITHUB_INSTANCE and CURRENT_REPO variables.
 import utils
 import github
+import os
 
 try:
-    GAPVERSION = get_makefile_var("GAP_BUILD_VERSION")
+    GAPVERSION = utils.get_makefile_var("GAP_BUILD_VERSION")
 except:
-    error("Could not get GAP version")
-notice(f"Detected GAP version {GAPVERSION}")
+    utils.error("Could not get GAP version")
+
+utils.notice(f"Detected GAP version {GAPVERSION}")
 
 utils.initialize_github()
 
 if utils.check_whether_github_release_exists(GAPVERSION):
     utils.error(f"Release {GAPVERSION} already exists!")
 
-CURRENT_BRANCH = get_makefile_var("PKG_BRANCH")
+CURRENT_BRANCH = utils.get_makefile_var("PKG_BRANCH")
 RELEASE_NOTE = f"For an overview of changes in GAP {GAPVERSION} see CHANGES.md file."
-RELEASE = utils.CURRENT_REPO.create_git_release(TAG, TAG, RELEASE_NOTE,
-                                      target_commitish=CURRENT_BRANCH,
-                                      prerelease=True)
+RELEASE = utils.CURRENT_REPO.create_git_release("v"+GAPVERSION, "v"+GAPVERSION,
+                                                RELEASE_NOTE,
+                                                target_commitish=CURRENT_BRANCH,
+                                                prerelease=True)
 
 tmpdir = os.getcwd() + "/tmp"
-with working_directory(tmpdir):
+with utils.working_directory(tmpdir):
     manifest_filename = "__manifest_make_tarball"
     with open(manifest_filename, 'r') as manifest_file:
         manifest = manifest_file.read().splitlines()
-
-# Upload all assets to release
-try:
-    for filename in manifest:
-        utils.notice("Uploading " + filename)
-        RELEASE.upload_asset(filename)
-except github.GithubException:
-    error("Error: The upload failed")
+    # Upload all assets to release
+    try:
+        for filename in manifest:
+            utils.notice("Uploading " + filename)
+            RELEASE.upload_asset(filename)
+    except github.GithubException:
+        utils.error("Error: The upload failed")
