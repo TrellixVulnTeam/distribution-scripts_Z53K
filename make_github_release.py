@@ -25,7 +25,7 @@ utils.initialize_github()
 
 # Error if this release has been already created on GitHub
 if utils.check_whether_github_release_exists("v"+GAPVERSION):
-    utils.error(f"Release {GAPVERSION} already exists!")
+    utils.error(f"Release v{GAPVERSION} already exists!")
 
 # Create release
 CURRENT_BRANCH = utils.get_makefile_var("PKG_BRANCH")
