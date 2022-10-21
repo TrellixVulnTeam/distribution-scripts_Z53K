@@ -75,7 +75,29 @@ subprocess.run(["git", "archive",
 notice("Extracting exported content")
 shutil.rmtree(basename, ignore_errors=True) # remove any leftovers
 with tarfile.open(rawgap_tarfile) as tar:
-    tar.extractall(path=tmpdir)
+    
+    import os
+    
+    def is_within_directory(directory, target):
+        
+        abs_directory = os.path.abspath(directory)
+        abs_target = os.path.abspath(target)
+    
+        prefix = os.path.commonprefix([abs_directory, abs_target])
+        
+        return prefix == abs_directory
+    
+    def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+    
+        for member in tar.getmembers():
+            member_path = os.path.join(path, member.name)
+            if not is_within_directory(path, member_path):
+                raise Exception("Attempted Path Traversal in Tar File")
+    
+        tar.extractall(path, members, numeric_owner=numeric_owner) 
+        
+    
+    safe_extract(tar, path=tmpdir)
 os.remove(rawgap_tarfile)
 
 # Cleaning things up
@@ -135,7 +157,26 @@ with working_directory(tmpdir + "/" + basename):
 
     notice("Extract the packages")
     with tarfile.open("../"+all_packages_tarball) as tar:
-        tar.extractall(path="pkg")
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, path="pkg")
 
     notice("Building the manuals")
     run_with_log(["make", "doc"], "gapdoc", "building the manuals")
@@ -174,7 +215,26 @@ with working_directory(tmpdir):
 
     notice("Extract required packages")
     with tarfile.open(req_packages_tarball) as tar:
-        tar.extractall(path=req_packages)
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, path=req_packages)
 
     filename = req_packages + '.zip'
     notice(f"Creating {filename}")
